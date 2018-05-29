@@ -1,0 +1,129 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'kotlin'
+apply plugin: "maven"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version = "${projectb_version}"
+group= "com.tencao" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "ProjectBalance"
+
+minecraft {
+    version = "${minecraft_version}-${forge_version}"
+    runDir = "run"
+    mappings = 'snapshot_20180523'
+	
+    replace "@VERSION@", project.version
+    replaceIn "ProjectBCore.kt"
+    useDepAts = true
+}
+
+jar {
+    classifier = 'universal'
+    manifest {
+        attributes 'FMLAT': 'pe_at.cfg'
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+	maven { //MinecraftForge
+		name "MinecraftForge Maven"
+		url "http://files.minecraftforge.net/maven/"
+	}
+
+    maven {
+        name 'Chisel'
+        url "http://maven.tterrag.com/"
+    }
+
+    maven {
+        name 'JEI'
+        url "http://dvs1.progwml6.com/files/maven"
+    }
+
+    maven {
+        name 'jared'
+        url "http://blamejared.com/maven/"
+    }
+    maven {
+        name 'Forgelin'
+        url "http://maven.shadowfacts.net/"
+    }
+}
+ 
+dependencies {
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+
+    deobfCompile "mezz.jei:jei_1.12.2:4.9.1.189"
+    /*deobfCompile "MineTweaker3:MineTweaker3-API:3.0.11.26"
+    deobfCompile "MineTweaker3:MineTweaker3-MC1102-Main:1.10.2-3.0.11.26"
+    deobfCompile "MineTweaker3:ZenScript:3.0.11.26"*/
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+    compile "net.shadowfacts:Forgelin:${forgelin_version}"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+idea { module { inheritOutputDirs = true } }
+
+// Dev jar (deobfuscated)
+task devJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+    version = "${project.version}"
+
+    println(defaultTasks)
+}
+
+artifacts {
+    archives devJar
+}
+
+defaultTasks 'clean', 'build', 'updateJSON'

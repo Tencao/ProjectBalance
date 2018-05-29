@@ -1,0 +1,12 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "projecte:pedestal",
+    "transform": "forge:default-block"
+  },
+  "variants": {
+    "tier=dark_matter": [{ "textures": { "pedestal": "projecte:blocks/dm" } }],
+    "tier=red_matter": [{ "textures": { "pedestal": "projecte:blocks/rm" } }],
+    "tier=blue_matter": [{ "textures": { "pedestal": "projecte:blocks/bm" } }]
+  }
+}

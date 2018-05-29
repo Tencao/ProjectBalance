@@ -1,0 +1,16 @@
+[
+{
+  "modid": "projectBalance",
+  "name": "ProjectBalance",
+  "description": "A balance overhaul mod for ProjectE",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": [ "Tencao" ],
+  "credits": "Thanks to BlueXin for assisting with development",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": ["ProjectE"]
+}
+]
