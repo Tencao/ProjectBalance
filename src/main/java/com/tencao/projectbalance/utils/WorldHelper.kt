@@ -20,10 +20,10 @@ import java.util.*
 object WorldHelper {
 
     fun getNearbyGrowth(harvest: Boolean, world: World, pos: BlockPos, player: EntityPlayer?): Int {
-        return getNearbyGrowth(harvest, world, Lists.newLinkedList(BlockPos.getAllInBox(pos.add(-5, -3, -5), pos.add(5, 3, 5))), player)
+        return getNearbyGrowth(harvest, world, BlockPos.getAllInBox(pos.add(-5, -3, -5), pos.add(5, 3, 5)).toSet(), player)
     }
 
-    fun getNearbyGrowth(harvest: Boolean, world: World, pos: List<BlockPos>, player: EntityPlayer?): Int {
+    fun getNearbyGrowth(harvest: Boolean, world: World, pos: Set<BlockPos>, player: EntityPlayer?): Int {
         var times = 0
 
         val chance = if (harvest) 16 else 32
@@ -100,10 +100,10 @@ object WorldHelper {
     }
 
     fun growNearbyRandomly(harvest: Boolean, world: World, pos: BlockPos, player: EntityPlayer) {
-        growNearbyRandomly(harvest, world, Lists.newLinkedList(BlockPos.getAllInBox(pos.add(-5, -3, -5), pos.add(5, 3, 5))), player)
+        growNearbyRandomly(harvest, world, BlockPos.getAllInBox(pos.add(-5, -3, -5), pos.add(5, 3, 5)).toSet(), player)
     }
 
-    fun growNearbyRandomly(harvest: Boolean, world: World, pos: List<BlockPos>, player: EntityPlayer?) {
+    fun growNearbyRandomly(harvest: Boolean, world: World, pos: Set<BlockPos>, player: EntityPlayer?) {
         val chance = if (harvest) 16 else 32
 
         for (currentPos in pos) {

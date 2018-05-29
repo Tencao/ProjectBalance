@@ -15,10 +15,11 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.*
+import kotlin.collections.HashSet
 
 object PedestalEvent {
 
-    private val pedestals = HashMap<DMPedestalTile, List<BlockPos>>()
+    private val pedestals = HashMap<DMPedestalTile, LinkedHashSet<BlockPos>>()
 
     //Removes any blocks from the watcher list
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -52,28 +53,31 @@ object PedestalEvent {
         }
     }
 
-    fun getBlockPos(tile: DMPedestalTile): List<BlockPos> {
+    fun getBlockPos(tile: DMPedestalTile): LinkedHashSet<BlockPos> {
         if (!pedestals.containsKey(tile))
             registerTileEntity(tile)
         return pedestals[tile]!!
     }
 
-    fun getTileEntities(world: World, tile: DMPedestalTile): List<TileEntity> {
+    fun getTileEntities(world: World, tile: DMPedestalTile): LinkedHashSet<TileEntity> {
         if (!pedestals.containsKey(tile))
             registerTileEntity(tile)
-        val tileEntities = Lists.newLinkedList<TileEntity>()
-        pedestals[tile]!!.forEach { pos -> tileEntities.add(world.getTileEntity(pos)) }
+        val tileEntities = LinkedHashSet<TileEntity>()
+        pedestals[tile]!!.forEach { pos ->
+            if (world.getTileEntity(pos) != null)
+                tileEntities.add(world.getTileEntity(pos)!!)
+        }
         tileEntities.removeIf({ Objects.isNull(it) })
         return tileEntities
     }
 
-    fun getPedestals(world: World, tile: DMPedestalTile): List<DMPedestalTile> {
+    fun getPedestals(world: World, tile: DMPedestalTile): LinkedHashSet<DMPedestalTile> {
         if (!pedestals.containsKey(tile))
             registerTileEntity(tile)
-        val tileEntities = Lists.newLinkedList<DMPedestalTile>()
+        val tileEntities = LinkedHashSet<DMPedestalTile>()
         pedestals[tile]!!.forEach { pos ->
             if (world.getTileEntity(pos) is DMPedestalTile)
-                tileEntities.add(world.getTileEntity(pos) as DMPedestalTile?)
+                tileEntities.add(world.getTileEntity(pos) as DMPedestalTile)
         }
         return tileEntities
     }

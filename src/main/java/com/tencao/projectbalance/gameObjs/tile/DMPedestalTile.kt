@@ -36,8 +36,9 @@ import net.minecraftforge.common.IShearable
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandlerModifiable
-import net.minecraftforge.items.ItemStackHandler
 import java.util.*
+import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashSet
 
 open class DMPedestalTile: TileEmc, IEmcAcceptor {
 
@@ -45,7 +46,7 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
     private var isActive = false
     private var isConnected = false
     private var inventory = this.StackHandler(1)
-    private var nearbyPedestals: MutableList<DMPedestalTile> = Lists.newLinkedList()
+    private var nearbyPedestals: MutableSet<DMPedestalTile> = LinkedHashSet()
     private var scanCooldown = 0
     private var particleCooldown = 10
     private var activityCooldown = 0
@@ -180,13 +181,13 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
 
     fun scanNearbyPedestals() {
         if (scanCooldown <= 0) {
-            PedestalEvent.getPedestals(world, this)
+            nearbyPedestals = PedestalEvent.getPedestals(world, this)
                     .asSequence()
                     .filter({ tile ->
                         !tile.isInvalid &&
                                 tile !== this &&
                                 (isConnected && tile.getItem() is IItemEmc && !tile.isConnected || tile.getItem() !is IItemEmc && tile.getItem() is IPedestalItem)
-                    }).toCollection(nearbyPedestals)
+                    }).toMutableSet()
             scanCooldown = ProjectBConfig.tweaks.scanCooldown
         } else {
             scanCooldown--
@@ -309,8 +310,8 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
         }
     }
 
-    fun getNearbyTiles(): List<BlockPos> {
-        val pos = Lists.newLinkedList<BlockPos>()
+    fun getNearbyTiles(): LinkedHashSet<BlockPos> {
+        val pos = LinkedHashSet<BlockPos>()
         WorldHelper.getTileEntitiesWithinAABB(world, getEffectBounds()).forEach { it ->
             if (doesTileMatch(it) || doesBlockMatch(world.getBlockState(it.pos).block))
                 pos.add(it.pos)
