@@ -249,7 +249,7 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
 
     override fun readFromNBT(tag: NBTTagCompound) {
         super.readFromNBT(tag)
-        inventory = ItemStackHandler(1) as StackHandler
+        inventory = this.StackHandler(1)
         inventory.deserializeNBT(tag)
         setActive(tag.getBoolean("isActive"))
         activityCooldown = tag.getInteger("activityCooldown")

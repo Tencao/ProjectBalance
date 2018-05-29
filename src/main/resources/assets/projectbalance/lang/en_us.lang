@@ -1,0 +1,34 @@
+item.pe_matter_blue.name=Blue Matter
+tile.pe_bm_furnace.name=Blue Matter Furnace
+tile.pe_bm_block.name=Blue Matter Block
+tile.pe_collector_MK4.name=Energy Collector MK4
+tile.pe_relay_MK4.name=Anti-Matter Relay MK4
+tile.pe_condensed_relay_MK1.name=Condensed Relay MK1
+tile.pe_condensed_relay_MK2.name=Condensed Relay MK2
+tile.pe_condensed_relay_MK3.name=Condensed Relay MK3
+tile.pe_condensed_relay_MK4.name=Condensed Relay MK4
+tile.pe_powerflower_MK1.name=PowerFlower MK1
+tile.pe_powerflower_MK2.name=PowerFlower MK2
+tile.pe_powerflower_MK3.name=PowerFlower MK3
+tile.pe_powerflower_MK4.name=PowerFlower MK4
+tile.pe_dm_pedestal.name=Dark Matter Pedestal
+tile.pe_rm_pedestal.name=Red Matter Pedestal
+tile.pe_bm_pedestal.name=Blue Matter Pedestal
+
+pe.emc.rate10=EMC/ 10s
+pe.emc.complexity_tooltip=Complexity:
+pe.emc.craft_time=Craft Time:
+
+pe.evertide.pedestal1=Applies water breathing, night vision
+pe.evertide.pedestal2=and haste every %s
+
+pe.tier_1=Tier 1 -
+pe.tier_2=Tier 2 -
+pe.tier_3=Tier 3 -
+pe.tier_4=Tier 4 -
+pe.efficiency= Efficiency:
+
+pe.tome.pedestal=Speeds up crafting of nearby condensers
+
+pe.volcanite.pedestal1=Applies fire resist, water breathing
+pe.volcanite.pedestal2=and haste every %s

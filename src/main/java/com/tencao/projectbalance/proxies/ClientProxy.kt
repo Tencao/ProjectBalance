@@ -1,6 +1,8 @@
 package com.tencao.projectbalance.proxies
 
 import com.tencao.projectbalance.ProjectBCore
+import com.tencao.projectbalance.events.PedestalEvent
+import com.tencao.projectbalance.events.ToolTipEvent
 import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.gameObjs.state.EnumMatterType
 import com.tencao.projectbalance.gameObjs.tile.*
@@ -16,6 +18,7 @@ import net.minecraft.client.renderer.block.statemap.StateMap
 import net.minecraft.item.Item
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.client.registry.ClientRegistry
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.eventhandler.EventPriority
@@ -35,6 +38,13 @@ class ClientProxy: IProxy {
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK3Tile::class.java, PowerFlowerRenderer(3))
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK4Tile::class.java, PowerFlowerRenderer(4))
         ClientRegistry.bindTileEntitySpecialRenderer<DMPedestalTile>(DMPedestalTile::class.java, PedestalRenderer())
+    }
+
+    override fun registerEvents() {
+        MinecraftForge.EVENT_BUS.register(ClientProxy)
+        MinecraftForge.EVENT_BUS.register(ObjRegistry)
+        MinecraftForge.EVENT_BUS.register(PedestalEvent)
+        MinecraftForge.EVENT_BUS.register(ToolTipEvent)
     }
 
     companion object {

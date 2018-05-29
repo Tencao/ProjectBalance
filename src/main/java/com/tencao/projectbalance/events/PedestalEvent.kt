@@ -16,7 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.*
 
-@Mod.EventBusSubscriber(modid = ProjectBCore.MODID)
 object PedestalEvent {
 
     private val pedestals = HashMap<DMPedestalTile, List<BlockPos>>()

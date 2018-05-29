@@ -2,11 +2,9 @@ package com.tencao.projectbalance
 
 import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.handlers.InternalCooldowns
-import com.tencao.projectbalance.proxies.ClientProxy
 import com.tencao.projectbalance.proxies.IProxy
 import com.tencao.projectbalance.utils.GuiHandler
 import moze_intel.projecte.utils.DummyIStorage
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
@@ -35,8 +33,7 @@ object ProjectBCore {
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        MinecraftForge.EVENT_BUS.register(ClientProxy)
-        MinecraftForge.EVENT_BUS.register(ObjRegistry)
+        proxy.registerEvents()
         CapabilityManager.INSTANCE.register<InternalCooldowns>(InternalCooldowns::class.java, DummyIStorage<InternalCooldowns>(), { InternalCooldowns(null) })
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, GuiHandler())
