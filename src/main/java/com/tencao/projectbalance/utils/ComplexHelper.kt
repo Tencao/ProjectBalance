@@ -1,6 +1,7 @@
 package com.tencao.projectbalance.utils
 
-import com.tencao.projectbalance.mapper.ComplexityMapper
+import com.tencao.projectbalance.mapper.Graph
+import com.tencao.projectbalance.mapper.ItemComponent
 import moze_intel.projecte.emc.EMCMapper
 import moze_intel.projecte.emc.SimpleStack
 import net.minecraft.item.ItemStack
@@ -14,7 +15,8 @@ object ComplexHelper {
      * @return Returns the complexity level
      */
     fun getComplexity(stack: ItemStack): Int {
-        return ComplexityMapper.getComplexityValue(SimpleStack(stack))
+        val emcCount: Int = EMCMapper.emc.getOrDefault(SimpleStack(stack), 1)
+        return Math.max((emcCount.toFloat() / 1000f + 0.5f).toInt(), 1) * Graph.get(ItemComponent(stack)).complexity
     }
 
     /**
@@ -24,6 +26,6 @@ object ComplexHelper {
      */
     fun getCraftTime(stack: ItemStack): Int {
         val simpleStack = SimpleStack(stack)
-        return EMCMapper.getEmcValue(simpleStack) * ComplexityMapper.getComplexityValue(simpleStack) / 60 / 60
+        return EMCMapper.getEmcValue(simpleStack) * getComplexity(stack) / 60 / 60
     }
 }

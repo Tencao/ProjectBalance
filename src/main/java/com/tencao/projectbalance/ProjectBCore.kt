@@ -2,12 +2,16 @@ package com.tencao.projectbalance
 
 import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.handlers.InternalCooldowns
+import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.proxies.IProxy
 import com.tencao.projectbalance.utils.GuiHandler
+import moze_intel.projecte.emc.EMCMapper
 import moze_intel.projecte.utils.DummyIStorage
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
 import org.apache.logging.log4j.LogManager
@@ -41,5 +45,10 @@ object ProjectBCore {
         ObjRegistry.register()
 
         proxy.registerRenderers()
+    }
+
+    @Mod.EventHandler
+    fun loadComplete(event: FMLLoadCompleteEvent) {
+        Graph.make()
     }
 }

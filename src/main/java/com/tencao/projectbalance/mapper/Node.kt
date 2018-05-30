@@ -1,55 +1,29 @@
 package com.tencao.projectbalance.mapper
 
-import java.util.*
+open class Node(val output: Component) {
 
-class Node {
+    private var visitedV = false
+    private var visitedC = false
 
-    private var name: String = ""
-
-    private var shortestPath: LinkedList<Node> = LinkedList()
-
-    private var distance: Int = Integer.MAX_VALUE
-
-    private var adjacentNodes: MutableMap<Node, Int> = HashMap()
-
-    fun Node(name: String) {
-        this.name = name
+    open val value: Int by lazy {
+        if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
+        visitedV = true
+        1
     }
 
-    fun addDestination(destination: Node, distance: Int) {
-        adjacentNodes[destination] = distance
+    open val complexity: Int by lazy {
+        if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
+        visitedC = true
+        1
     }
 
-    fun getName(): String? {
-        return name
-    }
+    private val recipes = mutableListOf<Recipe>()
+    fun add(recipe: Recipe) = recipes.add(recipe)
+    override fun toString() = "Node of $output recipes :\n\t\t${recipes.joinToString("\n\t\t")}"
 
-    fun setName(name: String) {
-        this.name = name
+    fun cleanBlocks() {
+        recipes.removeAll { it.isUnBlockRecipe && Graph[it.blockForm!!].recipes.any { ot -> ot.isBlockRecipe && ot.itemForm!!.corresponds(it.itemForm) } }
     }
-
-    fun getAdjacentNodes(): Map<Node, Int> {
-        return adjacentNodes
-    }
-
-    fun setAdjacentNodes(adjacentNodes: MutableMap<Node, Int>) {
-        this.adjacentNodes = adjacentNodes
-    }
-
-    fun getDistance(): Int {
-        return distance
-    }
-
-    fun setDistance(distance: Int) {
-        this.distance = distance
-    }
-
-    fun getShortestPath(): List<Node> {
-        return shortestPath
-    }
-
-    fun setShortestPath(shortestPath: LinkedList<Node>) {
-        this.shortestPath = shortestPath
-    }
-
 }
+
+class NoGenerationNode(output: Component, override var value: Int = 1, override var complexity: Int = 1) : Node(output)
