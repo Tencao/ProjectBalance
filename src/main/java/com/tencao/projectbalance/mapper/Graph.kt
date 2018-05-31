@@ -32,8 +32,8 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
     private val dummy by lazy {
         object : Node(ItemComponent(ItemStack(Blocks.AIR))) {
-            override val value = 1
-            override val complexity = 1
+            override val value = 1f
+            override val complexity = 1f
         }
     }
 
@@ -66,11 +66,9 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
     @Suppress("UNCHECKED_CAST")
     private fun populate() {
-        ForgeRegistries.RECIPES.valuesCollection/*.filter { it.recipeOutput?.item is ItemFood }*/.forEach loop@ {
-            //            LogHelper.logInfo("Analyzing $it (-> ${it.recipeOutput})")
-            val output: Component
+        ForgeRegistries.RECIPES.valuesCollection.forEach loop@ {
+            val output: Component = ItemComponent(it.recipeOutput).makeOutput()
             val recipe = Recipe(ItemComponent(it.recipeOutput), CraftingIngredients(it).getComponents())
-            output = ItemComponent(it.recipeOutput).makeOutput()
 
             Graph[output].add(recipe)
         }

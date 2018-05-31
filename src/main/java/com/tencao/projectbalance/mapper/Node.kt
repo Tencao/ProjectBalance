@@ -21,16 +21,16 @@ open class Node(val output: Component) {
     private var visitedV = false
     private var visitedC = false
 
-    open val value: Int by lazy {
+    open val value: Float by lazy {
         if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
         visitedV = true
-        recipes.map { it.value }.min() ?: 1
+        recipes.map { it.value }.min() ?: 1f
     }
 
-    open val complexity: Int by lazy {
+    open val complexity: Float by lazy {
         if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
         visitedC = true
-        recipes.map { it.complexity }.min() ?: 1
+        recipes.map { it.complexity }.min() ?: 1f
     }
 
     private val recipes = mutableListOf<Recipe>()
@@ -42,4 +42,4 @@ open class Node(val output: Component) {
     }
 }
 
-class NoGenerationNode(output: Component, override var value: Int = 1, override var complexity: Int = 1) : Node(output)
+class NoGenerationNode(output: Component, override var value: Float = 1f, override var complexity: Float = 1f) : Node(output)

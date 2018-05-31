@@ -20,7 +20,6 @@ import com.google.common.collect.Lists
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import java.util.*
-import kotlin.collections.ArrayList
 
 class CraftingIngredients(recipe: IRecipe) {
 
@@ -57,6 +56,15 @@ class CraftingIngredients(recipe: IRecipe) {
     fun getComponents(): List<Component>{
         val components = listOf<Component>()
         fixedInputs.forEach { components.plus(ItemComponent(it)) }
+        variableInputs.forEach {
+            var stack: Component = ItemComponent(it.first())
+            it.forEach {
+                val toTest: Component = ItemComponent(it)
+                if (Graph[stack].complexity > Graph[toTest].complexity)
+                    stack = toTest
+            }
+            components.plus(stack)
+        }
         variableInputs.forEach { components.plus(ODComponent(it.toList())) }
         return components
     }
