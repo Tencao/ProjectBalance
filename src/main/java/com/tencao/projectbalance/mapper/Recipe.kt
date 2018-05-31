@@ -16,21 +16,23 @@
 
 package com.tencao.projectbalance.mapper
 
+import java.lang.IllegalStateException
+
 open class Recipe(val output: Component, val input: List<Component>) {
 
-    open val value: Float by lazy {
+    open val value: Double by lazy {
         try {
             Math.abs(input.map { it.value * it.amount }.sum()) / output.amount
         } catch (e: IllegalStateException) {
-            Float.MAX_VALUE
+            Double.MAX_VALUE
         }
     }
 
-    open val complexity: Float by lazy {
+    open val complexity: Double by lazy {
         try {
-            input.map { it.complexity }.average().times(1.5f).toFloat()
+            input.map { it.complexity }.average().times(1.5)
         } catch (e: IllegalStateException) {
-            Float.MAX_VALUE
+            Double.MAX_VALUE
         }
     }
 
@@ -69,5 +71,5 @@ open class Recipe(val output: Component, val input: List<Component>) {
 }
 
 class FurnaceRecipe(output: Component, input: List<Component>) : Recipe(output, input) {
-    override val complexity by lazy { (super.complexity * 1.5).toFloat() }
+    override val complexity by lazy { super.complexity * 1.5 }
 }

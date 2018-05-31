@@ -16,21 +16,23 @@
 
 package com.tencao.projectbalance.mapper
 
+import java.lang.IllegalStateException
+
 open class Node(val output: Component) {
 
     private var visitedV = false
     private var visitedC = false
 
-    open val value: Float by lazy {
+    open val value: Double by lazy {
         if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
         visitedV = true
-        recipes.map { it.value }.min() ?: 1f
+        recipes.map { it.value }.min() ?: 1.0
     }
 
-    open val complexity: Float by lazy {
+    open val complexity: Double by lazy {
         if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
         visitedC = true
-        recipes.map { it.complexity }.min() ?: 1f
+        recipes.map { it.complexity }.min() ?: 1.0
     }
 
     private val recipes = mutableListOf<Recipe>()
@@ -41,5 +43,3 @@ open class Node(val output: Component) {
         recipes.removeAll { it.isUnBlockRecipe && Graph[it.blockForm!!].recipes.any { ot -> ot.isBlockRecipe && ot.itemForm!!.corresponds(it.itemForm) } }
     }
 }
-
-class NoGenerationNode(output: Component, override var value: Float = 1f, override var complexity: Float = 1f) : Node(output)

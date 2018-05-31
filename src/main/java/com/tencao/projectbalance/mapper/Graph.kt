@@ -17,10 +17,13 @@
 package com.tencao.projectbalance.mapper
 
 import com.tencao.projectbalance.ProjectBCore
-import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
+import net.minecraft.item.crafting.ShapedRecipes
+import net.minecraft.item.crafting.ShapelessRecipes
 import net.minecraftforge.fml.common.registry.ForgeRegistries
+import net.minecraftforge.oredict.ShapedOreRecipe
+import net.minecraftforge.oredict.ShapelessOreRecipe
 
 object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
@@ -31,9 +34,9 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
     private val graph = hashMapOf<Component, Node>()
 
     private val dummy by lazy {
-        object : Node(ItemComponent(ItemStack(Blocks.AIR))) {
-            override val value = 1f
-            override val complexity = 1f
+        object : Node(ItemComponent(ItemStack.EMPTY)) {
+            override val value = 1.0
+            override val complexity = 1.0
         }
     }
 
@@ -67,8 +70,11 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
     @Suppress("UNCHECKED_CAST")
     private fun populate() {
         ForgeRegistries.RECIPES.valuesCollection.forEach loop@ {
+            if (!(it is ShapedRecipes || it is ShapelessRecipes || it is ShapedOreRecipe || it is ShapelessOreRecipe) || it.recipeOutput.isEmpty) return@loop
             val output: Component = ItemComponent(it.recipeOutput).makeOutput()
             val recipe = Recipe(ItemComponent(it.recipeOutput), CraftingIngredients(it).getComponents())
+            ProjectBCore.LOGGER.info("Registering recipe, Output: ${it.recipeOutput}, Input: ${CraftingIngredients(it).allInputs}")
+            ProjectBCore.LOGGER.info("Component Output: ${recipe.output.makeOutput()}, Input: ${recipe.input}")
 
             Graph[output].add(recipe)
         }
@@ -92,13 +98,9 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
         ProjectBCore.LOGGER.info("Cleaned, generating values...")
         generateValues()
         ProjectBCore.LOGGER.info("Generated values!")
+        printValues()
     }
 
     fun getODEntry(c: ODComponent) = ItemComponent(c.itemStacks.find { graph.containsKey(ItemComponent(it).makeOutput()) } ?: c.itemStacks[0]).makeOutput()
-
-    private fun getNoGeneration(component: Component): NoGenerationNode {
-        if (!graph.containsKey(component)) graph[component] = NoGenerationNode(component)
-        return graph[component] as NoGenerationNode
-    }
 
 }

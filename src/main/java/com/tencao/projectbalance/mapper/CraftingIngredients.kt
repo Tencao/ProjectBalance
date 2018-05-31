@@ -34,10 +34,12 @@ class CraftingIngredients(recipe: IRecipe) {
                 fixedInputs.add(matches[0].copy())
                 allInputs.add(matches[0].copy())
             } else if (matches.isNotEmpty()) {
-                val recipeItemOptions = LinkedList<ItemStack>()
+                val recipeItemOptions = mutableListOf<ItemStack>()
                 for (option in matches) {
-                    recipeItemOptions.add(option.copy())
-                    allInputs.add(option.copy())
+                    if (!option.isEmpty) {
+                        recipeItemOptions.add(option.copy())
+                        allInputs.add(option.copy())
+                    }
                 }
                 variableInputs.add(recipeItemOptions)
             }
@@ -54,8 +56,8 @@ class CraftingIngredients(recipe: IRecipe) {
     }
 
     fun getComponents(): List<Component>{
-        val components = listOf<Component>()
-        fixedInputs.forEach { components.plus(ItemComponent(it)) }
+        val components = mutableListOf<Component>()
+        fixedInputs.forEach { components.add(ItemComponent(it)) }
         variableInputs.forEach {
             var stack: Component = ItemComponent(it.first())
             it.forEach {
@@ -63,9 +65,8 @@ class CraftingIngredients(recipe: IRecipe) {
                 if (Graph[stack].complexity > Graph[toTest].complexity)
                     stack = toTest
             }
-            components.plus(stack)
+            components.add(stack)
         }
-        variableInputs.forEach { components.plus(ODComponent(it.toList())) }
         return components
     }
 

@@ -18,9 +18,15 @@ package com.tencao.projectbalance.mapper
 
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraftforge.oredict.OreDictionary
+import java.lang.IllegalArgumentException
+import java.lang.UnsupportedOperationException
 import java.util.*
 
+/**
+ * Part of FoodBuffs by Bluexin.
+ *
+ * @author Bluexin
+ */
 abstract class Component(var amount: Int) {
     abstract fun corresponds(other: Component?): Boolean
 
@@ -37,18 +43,17 @@ abstract class Component(var amount: Int) {
     override fun hashCode() = amount
 
     open fun makeOutput(): ItemComponent {
-        amount = 1
+        amount = 0
         return this as ItemComponent
     }
 
     abstract val configName: String
 }
 
-
-class ItemComponent(val itemStack: ItemStack) : Component(Math.max(itemStack.count, 1)) {
+class ItemComponent(val itemStack: ItemStack) : Component(itemStack.count) {
     override val configName by lazy { "${itemStack.item.registryName}@${itemStack.itemDamage}" }
 
-    constructor(configName: String) : this(ItemStack(Item.getByNameOrId(configName.substringBefore('@')), 0, Integer.parseInt(configName.substringAfter('@')))) {
+    constructor(configName: String) : this(ItemStack(Item.getByNameOrId(configName.substringBefore('@')), 1, Integer.parseInt(configName.substringAfter('@')))) {
         if (this.itemStack == ItemStack.EMPTY) throw IllegalArgumentException("$configName unknown!")
     }
 
@@ -56,8 +61,8 @@ class ItemComponent(val itemStack: ItemStack) : Component(Math.max(itemStack.cou
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other is ItemStack && ItemStack.areItemStacksEqual(this.itemStack, other))
         if (!super.equals(other)) return false
+        if (other !is ItemComponent) return false
 
         return (other is ItemComponent && ItemStack.areItemStacksEqual(this.itemStack, other.itemStack)) || (other is ODComponent && other == this)
     }
@@ -67,14 +72,11 @@ class ItemComponent(val itemStack: ItemStack) : Component(Math.max(itemStack.cou
     override fun toString() = "ItemComponent(itemStack=$itemStack)"
 
     override fun makeOutput(): ItemComponent {
-        val new = ItemComponent(itemStack.copy())
-        if (new.itemStack.itemDamage == OreDictionary.WILDCARD_VALUE) new.itemStack.itemDamage = 0
-        new.amount = this.amount
-        return new
+        return ItemComponent(itemStack.copy())
     }
 }
 
-class ODComponent(val itemStacks: List<ItemStack>) : Component(Math.max(itemStacks[0].count, 1)) {
+class ODComponent(val itemStacks: List<ItemStack>) : Component(itemStacks[0].count) {
     override val configName: String
         get() = throw UnsupportedOperationException()
 
@@ -83,6 +85,7 @@ class ODComponent(val itemStacks: List<ItemStack>) : Component(Math.max(itemStac
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (!super.equals(other)) return false
+        if (other !is ODComponent) return false
 
         return (other is ODComponent && other.itemStacks.map { Triple(it.item, it.itemDamage, it.count) } == this.itemStacks.map { Triple(it.item, it.itemDamage, it.count) }) || (other is ItemComponent && this.itemStacks.any { ItemStack.areItemStacksEqual(other.itemStack, it) })
     }
