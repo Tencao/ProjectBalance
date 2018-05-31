@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.tencao.projectbalance.mapper
 
 import com.tencao.projectbalance.ProjectBCore
@@ -29,6 +45,10 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
         return graph[component]!!
     }
 
+    operator fun get(stack: ItemStack): Node {
+        return graph.entries.find { it.key.equals(stack) }?.value ?: dummy
+    }
+
     fun clear() {
         graph.clear()
         constructed = false
@@ -49,9 +69,8 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
         ForgeRegistries.RECIPES.valuesCollection/*.filter { it.recipeOutput?.item is ItemFood }*/.forEach loop@ {
             //            LogHelper.logInfo("Analyzing $it (-> ${it.recipeOutput})")
             val output: Component
-            val recipe: Recipe
+            val recipe = Recipe(ItemComponent(it.recipeOutput), CraftingIngredients(it).getComponents())
             output = ItemComponent(it.recipeOutput).makeOutput()
-            recipe = Recipe(ItemComponent(it.recipeOutput), CraftingIngredients(it).getComponents())
 
             Graph[output].add(recipe)
         }

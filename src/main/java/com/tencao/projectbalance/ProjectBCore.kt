@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.tencao.projectbalance
 
 import com.tencao.projectbalance.gameObjs.ObjRegistry
@@ -5,7 +21,6 @@ import com.tencao.projectbalance.handlers.InternalCooldowns
 import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.proxies.IProxy
 import com.tencao.projectbalance.utils.GuiHandler
-import moze_intel.projecte.emc.EMCMapper
 import moze_intel.projecte.utils.DummyIStorage
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.Mod
@@ -48,7 +63,7 @@ object ProjectBCore {
     }
 
     @Mod.EventHandler
-    fun loadComplete(event: FMLLoadCompleteEvent) {
+    fun loadComplete(event: FMLPostInitializationEvent) {
         Graph.make()
     }
 }
