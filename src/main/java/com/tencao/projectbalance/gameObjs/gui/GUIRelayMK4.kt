@@ -43,7 +43,7 @@ class GUIRelayMK4(invPlayer: InventoryPlayer, private val tile: RelayMK4Tile) : 
     }
 
     override fun drawGuiContainerForegroundLayer(var1: Int, var2: Int) {
-        this.fontRenderer.drawString(I18n.format("pe.relay.mk3"), 38, 6, 4210752)
+        this.fontRenderer.drawString(I18n.format("pe.relay.mk4"), 38, 6, 4210752)
         this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(container.emc), 125, 39, 4210752)
     }
 

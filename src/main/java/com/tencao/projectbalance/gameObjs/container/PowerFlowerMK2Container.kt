@@ -67,7 +67,6 @@ class PowerFlowerMK2Container(invPlayer: InventoryPlayer, condenser: PowerFlower
         }
 
         val stack = slot.stack
-        val newStack = stack.copy()
 
         if (slotIndex <= 84) {
             if (!this.mergeItemStack(stack, 85, 120, false)) {

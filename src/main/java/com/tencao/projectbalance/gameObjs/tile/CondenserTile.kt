@@ -16,6 +16,7 @@
 
 package com.tencao.projectbalance.gameObjs.tile
 
+import com.tencao.projectbalance.config.ProjectBConfig
 import com.tencao.projectbalance.utils.ComplexHelper
 import moze_intel.projecte.api.tile.IEmcAcceptor
 import moze_intel.projecte.gameObjs.ObjHandler
@@ -49,6 +50,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
     var requiredEmc: Int = 0
     var requiredTime: Int = 0
     var timePassed: Int = 0
+    var craftTimer: Int = 0
     var tomeProviders = LinkedHashSet<DMPedestalTile>()
 
     protected open fun createInput(): ItemStackHandler {
@@ -148,35 +150,47 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
                 break
             }
         }
+        craft()
+    }
 
+    protected open fun craft(){
         if (this.storedEmc >= requiredEmc && this.hasSpace()) {
-            if (requiredTime <= 0) {
-                requiredTime = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
-                timePassed = 0
-            }
+            if (craftTimer == 0) {
+                if (requiredTime <= 0) {
+                    val time = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
+                    if (time <= 100) {
+                        this.removeEMC(requiredEmc.toDouble())
+                        pushStack()
+                    } else {
+                        requiredTime = time
+                        timePassed = 0
+                        craftTimer = 20
+                    }
+                }
 
-            if (requiredTime <= 100) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-            } else if (timePassed >= requiredTime) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-                timePassed = 0
-            } else {
-                if (tomeProviders.isEmpty())
-                    timePassed++
-                else {
-                    var counter = 0
-                    for (tile in tomeProviders)
-                        if (tile.hasRequiredEMC(20.0, false))
-                            counter++
-                    if (counter > 0)
-                        timePassed += Math.min((requiredTime * (5.0f / 100.0f) / ComplexHelper.getComplexity(lock.getStackInSlot(0))) as Int,
-                                (counter / (counter + 2f) * 10f).toInt()) + 1
-                    else
-                        timePassed++
+                if (timePassed >= requiredTime) {
+                    this.removeEMC(requiredEmc.toDouble())
+                    pushStack()
+                    timePassed = 0
+                    craftTimer = 0
+                } else {
+                    timePassed += if (tomeProviders.isEmpty())
+                        20
+                    else {
+                        var counter = 0
+                        for (tile in tomeProviders)
+                            if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toDouble(), false))
+                                counter++
+                        if (counter > 0)
+                            (Math.min((requiredTime.toFloat() * (5.0f / 100.0f) / ComplexHelper.getComplexity(lock.getStackInSlot(0))).toInt(),
+                                    (counter.toFloat() / (counter.toFloat() + 2f) * 10f).toInt()) + 1) * 20
+                        else
+                            20
+                    }
+                    craftTimer = 20
                 }
             }
+            else craftTimer--
         }
     }
 

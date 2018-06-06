@@ -17,7 +17,6 @@
 package com.tencao.projectbalance.gameObjs.items.rings
 
 import com.tencao.projectbalance.config.ProjectBConfig
-import com.tencao.projectbalance.events.PedestalEvent
 import com.tencao.projectbalance.gameObjs.tile.DMPedestalTile
 import com.tencao.projectbalance.utils.WorldHelper
 import moze_intel.projecte.config.ProjectEConfig
@@ -57,10 +56,10 @@ class HarvestGoddess: HarvestGoddess() {
         if (!world.isRemote && ProjectEConfig.pedestalCooldown.harvestPedCooldown != -1) {
             val te = world.getTileEntity(pos) as? DMPedestalTile ?: return
 
-            val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost * WorldHelper.getNearbyGrowth(true, world, PedestalEvent.getBlockPos(te), null)
+            val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost * WorldHelper.getNearbyGrowth(true, world, te.nearbyBlocks, null)
 
             if (te.hasRequiredEMC(cost.toDouble(), false))
-                WorldHelper.growNearbyRandomly(true, world, PedestalEvent.getBlockPos(te), null)
+                WorldHelper.growNearbyRandomly(true, world, te.nearbyBlocks, null)
 
             te.setActivityCooldown(ProjectEConfig.pedestalCooldown.harvestPedCooldown)
         }

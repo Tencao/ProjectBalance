@@ -16,6 +16,7 @@
 
 package com.tencao.projectbalance.gameObjs.tile
 
+import com.tencao.projectbalance.config.ProjectBConfig
 import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.utils.ComplexHelper
 import com.tencao.projectbalance.utils.Constants
@@ -66,7 +67,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
 
                 sunBrightness = limit(sunBrightness, 0.0f, 1.0f)
             }
-            return world.getLightFor(EnumSkyBlock.SKY, pos) / 15.0f * sunBrightness
+            return world.getLightFor(EnumSkyBlock.SKY, pos.up()) / 15.0f * sunBrightness
         }
 
     constructor() : this(Constants.POWER_FLOWER_MK1_MAX, Constants.POWER_FLOWER_MK1_GEN)
@@ -148,8 +149,9 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
 
     private fun checkLockAndUpdate() {
         if (lock.getStackInSlot(0).isEmpty) {
-            displayEmc = 0
             requiredEmc = 0
+            timePassed = 0
+            requiredTime = 0
             return
         }
 
@@ -157,13 +159,15 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
             val lockEmc = EMCHelper.getEmcValue(lock.getStackInSlot(0))
 
             if (requiredEmc != lockEmc) {
+                requiredTime = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
                 requiredEmc = lockEmc
             }
         } else {
             lock.setStackInSlot(0, ItemStack.EMPTY)
 
-            displayEmc = 0
             requiredEmc = 0
+            timePassed = 0
+            requiredTime = 0
         }
     }
 
@@ -181,33 +185,41 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
                 break
             }
         }
+        craft()
+    }
 
+    protected open fun craft(){
         if (this.storedEmc >= requiredEmc && this.hasSpace()) {
             if (requiredTime <= 0) {
-                requiredTime = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
-                timePassed = 0
-            }
-
-            if (requiredTime <= 100) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-            } else if (timePassed >= requiredTime) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-                timePassed = 0
+                val time = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
+                if (time <= 100) {
+                    this.removeEMC(requiredEmc.toDouble())
+                    pushStack()
+                } else {
+                    requiredTime = time
+                    timePassed = 0
+                }
             } else {
-                if (tomeProviders.isEmpty())
-                    timePassed++
+                timePassed += if (tomeProviders.isEmpty())
+                    1
                 else {
                     var counter = 0
                     for (tile in tomeProviders)
-                        if (tile.hasRequiredEMC(20.0, false))
+                        if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toDouble(), false))
                             counter++
                     if (counter > 0)
-                        timePassed += Math.min((requiredTime.toFloat() * (5.0f / 100.0f) / ComplexHelper.getComplexity(lock.getStackInSlot(0)) as Float).toInt(),
-                                (counter.toFloat() / (counter.toFloat() + 2f) * 10f).toInt()) + 1
+                        Math.min(
+                                (requiredTime * (5.0f / 100.0f) / 20).toInt(),
+                                ((counter * 2)) + 1)
                     else
-                        timePassed++
+                        1
+                }
+                if (timePassed >= requiredTime) {
+                    this.removeEMC(requiredEmc.toDouble())
+                    pushStack()
+                    timePassed = 0
+
+
                 }
             }
         }

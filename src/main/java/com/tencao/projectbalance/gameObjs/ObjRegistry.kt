@@ -68,6 +68,7 @@ object ObjRegistry
     val powerFlowerMK2: Block = PowerFlower(2)
     val powerFlowerMK3: Block = PowerFlower(3)
     val powerFlowerMK4: Block = PowerFlower(4)
+    val transmuteStone: Block = TransmutationStone()
 
     val repairTalisman: Item = RepairTalisman()
     val kleinStars: Item = KleinStar()
@@ -102,11 +103,15 @@ object ObjRegistry
     val soulStone: Item = SoulStone()
     val lifeStone: Item = LifeStone()
 
+    val transmutationTablet: Item = TransmutationTablet()
+
     val tome: Item = Tome()
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     fun registerBlocks(evt: RegistryEvent.Register<Block>) {
         val r = evt.registry
+        registerObj<Block>(r, transmuteStone, "transmutation_table")
+        setNewValue("transmuteStone", transmuteStone)
         registerObj<Block>(r, collectorMK1, "collector_mk1")
         setNewValue("collectorMK1", collectorMK1)
         registerObj<Block>(r, collectorMK2, "collector_mk2")
@@ -226,6 +231,9 @@ object ObjRegistry
 
         registerObj<Item>(r, tome, tome.unlocalizedName)
         setNewValue("tome", tome)
+
+        registerObj<Item>(r, transmutationTablet, transmutationTablet.unlocalizedName)
+        setNewValue("transmutationTablet", transmutationTablet)
 
     }
 

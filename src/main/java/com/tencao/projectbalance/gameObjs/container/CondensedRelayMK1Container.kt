@@ -102,7 +102,7 @@ open class CondensedRelayMK1Container(invPlayer: InventoryPlayer, internal val t
 
         if (sunLevel != (tile.sunLevel * 16f).toInt()) {
             for (icrafting in this.listeners) {
-                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 0, (tile.sunLevel * 16f).toInt())
+                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 3, (tile.sunLevel * 16f).toInt())
             }
 
             sunLevel = (tile.sunLevel * 16f).toInt()

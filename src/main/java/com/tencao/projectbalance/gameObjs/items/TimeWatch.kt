@@ -17,7 +17,6 @@
 package com.tencao.projectbalance.gameObjs.items
 
 import com.tencao.projectbalance.config.ProjectBConfig
-import com.tencao.projectbalance.events.PedestalEvent
 import com.tencao.projectbalance.gameObjs.tile.DMPedestalTile
 import com.tencao.projectbalance.gameObjs.tile.IEmcGen
 import moze_intel.projecte.config.ProjectEConfig
@@ -33,12 +32,10 @@ class TimeWatch: TimeWatch() {
         if (!world.isRemote && ProjectEConfig.items.enableTimeWatch) {
             val te = world.getTileEntity(pos)
             if (te is DMPedestalTile) {
-                PedestalEvent.getTileEntities(world, te).forEach { it ->
-                    if (it is IEmcGen)
-                        if (te.hasRequiredEMC(ProjectBConfig.tweaks.TimeWatchBoostPedestalCost.toDouble(), false))
-                            (it as IEmcGen).updateEmc(true)
+                te.nearbyBlocks.forEach { if (world.getTileEntity(it) is IEmcGen &&
+                        te.hasRequiredEMC(ProjectBConfig.tweaks.TimeWatchBoostPedestalCost.toDouble(), false))
+                    (world.getTileEntity(it) as IEmcGen).updateEmc(true)
                 }
-
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package com.tencao.projectbalance.gameObjs.tile
 
-import com.tencao.projectbalance.utils.ComplexHelper
 import moze_intel.projecte.gameObjs.container.slots.SlotPredicates
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.item.ItemStack
@@ -61,36 +60,7 @@ class CondenserMK2Tile : CondenserTile() {
                 break
             }
         }
-
-        if (this.hasSpace() && this.storedEmc >= requiredEmc) {
-            if (requiredTime <= 0) {
-                requiredTime = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
-                timePassed = 0
-            }
-
-            if (requiredTime <= 100) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-            } else if (timePassed >= requiredTime) {
-                this.removeEMC(requiredEmc.toDouble())
-                pushStack()
-                timePassed = 0
-            } else {
-                if (tomeProviders.isEmpty())
-                    timePassed++
-                else {
-                    var counter = 0
-                    for (tile in tomeProviders)
-                        if (tile.hasRequiredEMC(20.0, false))
-                            counter++
-                    if (counter > 0)
-                        timePassed += Math.min((requiredTime.toFloat() * (5.0f / 100.0f) / ComplexHelper.getComplexity(lock.getStackInSlot(0)) as Float).toInt(),
-                                (counter.toFloat() / (counter.toFloat() + 2f) * 10f).toInt()) + 1
-                    else
-                        timePassed++
-                }
-            }
-        }
+        craft()
     }
 
     override fun readFromNBT(nbt: NBTTagCompound) {

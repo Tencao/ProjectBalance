@@ -17,9 +17,11 @@
 package com.tencao.projectbalance.utils
 
 import com.tencao.projectbalance.gameObjs.container.*
+import com.tencao.projectbalance.gameObjs.container.inventory.TransmutationInventory
 import com.tencao.projectbalance.gameObjs.gui.*
 import com.tencao.projectbalance.gameObjs.tile.*
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.EnumHand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.network.IGuiHandler
@@ -28,6 +30,8 @@ class GuiHandler: IGuiHandler {
 
     override fun getServerGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
         val tile = world.getTileEntity(BlockPos(x, y, z))
+        val hand = if (ID == Constants.TRANSMUTATION_GUI) if (x == 1) EnumHand.OFF_HAND else EnumHand.MAIN_HAND else null
+
         when (ID) {
             Constants.CONDENSER_GUI -> if (tile != null && tile is CondenserTile)
                 return CondenserContainer(player.inventory, tile)
@@ -65,12 +69,17 @@ class GuiHandler: IGuiHandler {
                 return PowerFlowerMK2Container(player.inventory, tile)
             Constants.POWERFLOWER4_GUI -> if (tile != null && tile is PowerFlowerMK4Tile)
                 return PowerFlowerMK2Container(player.inventory, tile)
+            Constants.TRANSMUTE_STONE_GUI ->
+                return TransmutationContainer(player.inventory, TransmutationInventory(player), null)
+            Constants.TRANSMUTATION_GUI ->
+                return TransmutationContainer(player.inventory, TransmutationInventory(player), hand)
         }
         return null
     }
 
     override fun getClientGuiElement(ID: Int, player: EntityPlayer, world: World, x: Int, y: Int, z: Int): Any? {
         val tile = world.getTileEntity(BlockPos(x, y, z))
+        val hand = if (ID == Constants.TRANSMUTATION_GUI) if (x == 1) EnumHand.OFF_HAND else EnumHand.MAIN_HAND else null
 
         when (ID) {
             Constants.CONDENSER_GUI -> if (tile != null && tile is CondenserTile)
@@ -109,6 +118,10 @@ class GuiHandler: IGuiHandler {
                 return GUIPowerFlowerMK3(player.inventory, tile)
             Constants.POWERFLOWER4_GUI -> if (tile != null && tile is PowerFlowerMK4Tile)
                 return GUIPowerFlowerMK4(player.inventory, tile)
+            Constants.TRANSMUTE_STONE_GUI ->
+                return GUITransmutation(player.inventory, TransmutationInventory(player), null)
+            Constants.TRANSMUTATION_GUI ->
+                return GUITransmutation(player.inventory, TransmutationInventory(player), hand)
         }
 
         return null

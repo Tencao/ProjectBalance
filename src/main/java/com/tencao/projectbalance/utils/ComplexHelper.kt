@@ -30,11 +30,11 @@ object ComplexHelper {
      * @param stack The ItemStack to check for
      * @return Returns the complexity level
      */
-    fun getComplexity(stack: ItemStack): Int {
+    fun getComplexity(stack: ItemStack): Float {
         val simpleStack = SimpleStack(stack)
         val emcCount: Int = EMCMapper.emc.getOrDefault(simpleStack, 1)
         val complexity = Graph[ItemComponent(simpleStack.toItemStack()).makeOutput()].complexity
-        return (Math.max((emcCount / 500 + 0.5f).toInt(), 1) * complexity).toInt()
+        return (emcCount / 1000 + 0.5f) + complexity.toFloat()
     }
 
     /**
@@ -44,6 +44,6 @@ object ComplexHelper {
      */
     fun getCraftTime(stack: ItemStack): Int {
         val simpleStack = SimpleStack(stack)
-        return EMCMapper.getEmcValue(simpleStack) * getComplexity(stack) / 60 / 60
+        return EMCMapper.getEmcValue(simpleStack) * getComplexity(stack).toInt() / 60 / 60
     }
 }

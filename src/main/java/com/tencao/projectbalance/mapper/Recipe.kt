@@ -20,19 +20,19 @@ import java.lang.IllegalStateException
 
 open class Recipe(val output: Component, val input: List<Component>) {
 
-    open val value: Double by lazy {
+    open val value: Int by lazy {
         try {
             Math.abs(input.map { it.value * it.amount }.sum()) / output.amount
         } catch (e: IllegalStateException) {
-            Double.MAX_VALUE
+            Int.MAX_VALUE
         }
     }
 
-    open val complexity: Double by lazy {
+    open val complexity: Int by lazy {
         try {
-            input.map { it.complexity }.average().times(1.5)
+            input.map { it.complexity }.sum()
         } catch (e: IllegalStateException) {
-            Double.MAX_VALUE
+            Int.MAX_VALUE
         }
     }
 
@@ -71,5 +71,5 @@ open class Recipe(val output: Component, val input: List<Component>) {
 }
 
 class FurnaceRecipe(output: Component, input: List<Component>) : Recipe(output, input) {
-    override val complexity by lazy { super.complexity * 1.5 }
+    override val complexity by lazy { (super.complexity * 1.5).toInt() }
 }

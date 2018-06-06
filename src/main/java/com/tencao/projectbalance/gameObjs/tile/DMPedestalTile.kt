@@ -30,7 +30,6 @@ import moze_intel.projecte.gameObjs.items.Tome
 import moze_intel.projecte.gameObjs.items.rings.HarvestGoddess
 import moze_intel.projecte.utils.Constants
 import moze_intel.projecte.utils.WorldHelper
-import net.minecraft.block.Block
 import net.minecraft.block.IGrowable
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
@@ -61,8 +60,8 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
     private var isActive = false
     private var isConnected = false
     private var inventory = this.StackHandler(1)
-    private var nearbyPedestals: MutableSet<DMPedestalTile> = LinkedHashSet()
-    private var scanCooldown = 0
+    var nearbyPedestals: LinkedHashSet<DMPedestalTile> = LinkedHashSet()
+    var nearbyBlocks: LinkedHashSet<BlockPos> = LinkedHashSet()
     private var particleCooldown = 10
     private var activityCooldown = 0
     var previousRedstoneState = false
@@ -195,21 +194,9 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
     }
 
     fun scanNearbyPedestals() {
-        if (scanCooldown <= 0) {
-            nearbyPedestals = PedestalEvent.getPedestals(world, this)
-                    .asSequence()
-                    .filter({ tile ->
-                        !tile.isInvalid &&
-                                tile !== this &&
-                                (isConnected && tile.getItem() is IItemEmc && !tile.isConnected || tile.getItem() !is IItemEmc && tile.getItem() is IPedestalItem)
-                    }).toMutableSet()
-            scanCooldown = ProjectBConfig.tweaks.scanCooldown
-        } else {
-            scanCooldown--
-            nearbyPedestals.removeIf(Objects::isNull)
-        }
-
-        val tiles = nearbyPedestals.asSequence().filter { it -> it.requiresEMC() && it.getActive() }
+        val tiles = nearbyPedestals.asSequence().filter { it.requiresEMC() && it.getActive() &&
+                (isConnected && it.getItem() is IItemEmc && !it.isConnected) ||
+                (it.getItem() !is IItemEmc && it.getItem() is IPedestalItem) }
 
         val list = world.getEntitiesWithinAABB<EntityPlayer>(EntityPlayerMP::class.java, getEffectBounds())
         val players = LinkedHashMap<EntityPlayer, List<ItemStack>>()
@@ -229,13 +216,12 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
             return
         }
 
-        tiles.forEach { tile -> sendEMC(tile, toSend) }
-
-        nearbyPedestals.forEach { tile ->
-            val x = pos.x - tile.getPos().x
-            val y = pos.y - tile.getPos().y
-            val z = pos.z - tile.getPos().z
-            spawnEMCParticles(BlockPos(x, y, z), tile.getPos())
+        tiles.forEach {
+            sendEMC(it, toSend)
+            val x = pos.x - it.getPos().x
+            val y = pos.y - it.getPos().y
+            val z = pos.z - it.getPos().z
+            spawnEMCParticles(BlockPos(x, y, z), it.getPos())
         }
 
         players.forEach { key, value ->
@@ -325,33 +311,25 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
         }
     }
 
-    fun getNearbyTiles(): LinkedHashSet<BlockPos> {
-        val pos = LinkedHashSet<BlockPos>()
-        WorldHelper.getTileEntitiesWithinAABB(world, getEffectBounds()).forEach { it ->
-            if (doesTileMatch(it) || doesBlockMatch(world.getBlockState(it.pos).block))
-                pos.add(it.pos)
-        }
-        return pos
-    }
-
-    fun doesTileMatch(tile: TileEntity): Boolean {
+    fun registerTileEntity(tile: TileEntity?) {
         val item = inventory.getStackInSlot(0).item
         if (item is TimeWatch && tile is IEmcGen)
-            return true
-        return if (item is Tome && tile is ICraftingGen) {
-            true
-        } else (item is IItemEmc && tile is DMPedestalTile)
+            nearbyBlocks.add(tile.pos)
+        if (item is Tome && tile is ICraftingGen)
+            nearbyBlocks.add(tile.pos)
+        if (item is IItemEmc && tile is DMPedestalTile)
+            nearbyPedestals.add(tile)
     }
 
-    fun doesBlockMatch(block: Block): Boolean {
+    fun registerBlock(pos: BlockPos) {
         val item = inventory.getStackInSlot(0).item
+        val block = world.getBlockState(pos).block
         if (item is IPedestalItem) {
             if (item is HarvestGoddess)
-                return (block is IShearable || block is IGrowable ||
-                        block is IPlantable)
+                if (block is IShearable || block is IGrowable || block is IPlantable)
+                    nearbyBlocks.add(pos)
 
         }
-        return false
     }
 
     override fun hasCapability(cap: Capability<*>, side: EnumFacing?): Boolean {
@@ -380,9 +358,9 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
     }
 
     private fun sendEMC(tile: DMPedestalTile, emc: Double) {
-        val toAdd = Math.min(emc, Constants.RELAY_MK2_OUTPUT.toDouble())
+        val toAdd: Double = Math.min(emc, Constants.RELAY_MK2_OUTPUT.toDouble())
 
-        val emcSent = tile.acceptEMC(null!!, toAdd)
+        val emcSent = tile.acceptEMC(EnumFacing.DOWN, toAdd)
 
         (inventory.getStackInSlot(0).item as IItemEmc).extractEmc(inventory.getStackInSlot(0), emcSent)
     }

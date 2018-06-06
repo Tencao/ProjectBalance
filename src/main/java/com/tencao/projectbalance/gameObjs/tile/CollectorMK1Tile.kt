@@ -91,7 +91,8 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
 
                 sunBrightness = limit(sunBrightness, 0.0f, 1.0f)
             }
-            return world.getLightFor(EnumSkyBlock.SKY, pos) / 15.0f * sunBrightness
+            val light = world.getLightFor(EnumSkyBlock.SKY, pos.up())
+            return light / 15.0f * sunBrightness
         }
 
     val emcToNextGoal: Double

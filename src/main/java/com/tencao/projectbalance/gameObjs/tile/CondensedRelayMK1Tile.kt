@@ -78,7 +78,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
 
                 sunBrightness = limit(sunBrightness, 0.0f, 1.0f)
             }
-            return world.getLightFor(EnumSkyBlock.SKY, pos) / 15.0f * sunBrightness
+            return world.getLightFor(EnumSkyBlock.SKY, pos.up()) / 15.0f * sunBrightness
         }
 
     val itemChargeProportion: Double

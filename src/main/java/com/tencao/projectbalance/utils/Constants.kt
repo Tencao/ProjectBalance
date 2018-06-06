@@ -93,4 +93,6 @@ object Constants {
     const val POWERFLOWER4_GUI = 15
     const val CONDENSER_GUI = 16
     const val CONDENSER_MK2_GUI = 17
+    const val TRANSMUTE_STONE_GUI = 18
+    const val TRANSMUTATION_GUI = 19
 }

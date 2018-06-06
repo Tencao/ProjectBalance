@@ -17,7 +17,6 @@
 package com.tencao.projectbalance.gameObjs.items
 
 import com.google.common.collect.Lists
-import com.tencao.projectbalance.events.PedestalEvent
 import com.tencao.projectbalance.gameObjs.tile.DMPedestalTile
 import com.tencao.projectbalance.gameObjs.tile.ICraftingGen
 import moze_intel.projecte.api.item.IPedestalItem
@@ -42,7 +41,9 @@ class Tome: Tome(), IPedestalItem {
         if (!world.isRemote) {
             val te = world.getTileEntity(pos)
             if (te is DMPedestalTile) {
-                PedestalEvent.getTileEntities(world, te).forEach { craftTile -> (craftTile as ICraftingGen).addTomeToCounter(te) }
+                te.nearbyBlocks.forEach { if (world.getTileEntity(it) is ICraftingGen)
+                    (world.getTileEntity(it) as ICraftingGen).addTomeToCounter(te)
+                }
             }
         }
     }

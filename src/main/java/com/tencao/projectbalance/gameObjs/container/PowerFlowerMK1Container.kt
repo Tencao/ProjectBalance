@@ -44,7 +44,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
     val progressScaled: Int
         get() {
             if (requiredEmc == 0) {
-                return 0
+                return displayEmc * Constants.MAX_CONDENSER_PROGRESS / tile.maximumEmc.toInt()
             }
 
             return if (displayEmc >= requiredEmc && requiredTime > 100) {
@@ -126,7 +126,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
         val count = tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 3, count)
+                PacketHandler.sendProgressBarUpdateInt(listener, this, 4, count)
             }
 
             tomes = count
@@ -135,7 +135,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
         if (sunLevel != (tile.sunLevel * 16f).toInt()) {
             for (icrafting in this.listeners) {
-                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 0, (tile.sunLevel * 16f).toInt())
+                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 5, (tile.sunLevel * 16f).toInt())
             }
 
             sunLevel = (tile.sunLevel * 16f).toInt()
@@ -162,7 +162,6 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
         }
 
         val stack = slot.stack
-        val newStack = stack.copy()
 
         if (slotIndex <= 91) {
             if (!this.mergeItemStack(stack, 92, 127, false)) {

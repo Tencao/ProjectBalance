@@ -111,7 +111,6 @@ public final class ProjectBConfig {
         @Config.Comment("Destruction Catalyst emc cost per block destroyed.")
         public int DestroEmc = 8;
 
-
         @Config.RangeInt(min = 0, max = 10000)
         @Config.Comment("SWRG Ability cost in emc")
         public int SWRGEmc = 64;
@@ -192,8 +191,8 @@ public final class ProjectBConfig {
         @Config.RangeInt(min = -1, max = 10000)
         public int TimeWatchBoostPedestalCost = 100;
 
-        @Config.RangeInt(min = -1, max = 10000)
-        public int TimeWatchPassivePedestalCost = 50;
+        @Config.RangeInt(min = 0, max = 10000)
+        public int TomeCost = 20;
 
         //Cooldowns
         @Config.RangeInt(min = -1, max = 600)

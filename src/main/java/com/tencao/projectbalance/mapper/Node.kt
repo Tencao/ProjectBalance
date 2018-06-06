@@ -23,16 +23,16 @@ open class Node(val output: Component) {
     private var visitedV = false
     private var visitedC = false
 
-    open val value: Double by lazy {
+    open val value: Int by lazy {
         if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
         visitedV = true
-        recipes.map { it.value }.min() ?: 1.0
+        Defaults.values[output] ?: recipes.map { it.value }.min() ?: 1
     }
 
-    open val complexity: Double by lazy {
+    open val complexity: Int by lazy {
         if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
         visitedC = true
-        recipes.map { it.complexity }.min() ?: 1.0
+        Defaults.complexities[output] ?:recipes.map { it.complexity }.min() ?: 1
     }
 
     private val recipes = mutableListOf<Recipe>()
@@ -43,3 +43,5 @@ open class Node(val output: Component) {
         recipes.removeAll { it.isUnBlockRecipe && Graph[it.blockForm!!].recipes.any { ot -> ot.isBlockRecipe && ot.itemForm!!.corresponds(it.itemForm) } }
     }
 }
+
+class NoGenerationNode(output: Component, override var value: Int = 1, override var complexity: Int = 1) : Node(output)

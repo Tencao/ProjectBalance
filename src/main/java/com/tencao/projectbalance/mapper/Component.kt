@@ -61,6 +61,7 @@ class ItemComponent(val itemStack: ItemStack) : Component(itemStack.count) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
+        if (other is ItemStack) return ItemStack.areItemsEqual(itemStack, other)
         if (!super.equals(other)) return false
         if (other !is ItemComponent) return false
 

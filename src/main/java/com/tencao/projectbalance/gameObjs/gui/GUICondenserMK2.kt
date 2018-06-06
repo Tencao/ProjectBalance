@@ -16,16 +16,19 @@
 
 package com.tencao.projectbalance.gameObjs.gui
 
+import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.gameObjs.container.CondenserMK2Container
 import com.tencao.projectbalance.gameObjs.tile.CondenserMK2Tile
-import com.tencao.projectbalance.utils.ComplexHelper
 import com.tencao.projectbalance.utils.Constants
 import moze_intel.projecte.PECore
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.opengl.GL11
 
 class GUICondenserMK2(invPlayer: InventoryPlayer, tile: CondenserMK2Tile) : GuiContainer(CondenserMK2Container(invPlayer, tile)) {
     private val container: CondenserMK2Container = inventorySlots as CondenserMK2Container
@@ -60,9 +63,8 @@ class GUICondenserMK2(invPlayer: InventoryPlayer, tile: CondenserMK2Tile) : GuiC
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
             if (container.tomes > 0) {
                 val factor = Math.min(
-                        (container.requiredTime * (5.0f / 100.0f) / ComplexHelper.getComplexity(container.inventory[0])).toInt(),
-                        (container.tomes / (container.tomes + 2f) * 10f).toInt()
-                ) + 1
+                        ((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(),
+                        container.tomes * 2) + 1
                 val toDisplay = (container.requiredTime - container.timePassed) / (20 * factor)
                 this.fontRenderer.drawString(String.format("%02dm %02ds", toDisplay / 60, toDisplay % 60), 140, 10, 4210752)
             } else {
@@ -73,6 +75,33 @@ class GUICondenserMK2(invPlayer: InventoryPlayer, tile: CondenserMK2Tile) : GuiC
             val toDisplay = if (container.displayEmc > container.requiredEmc) container.requiredEmc else container.displayEmc
             this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(toDisplay.toLong()), 140, 10, 4210752)
         }
+        this.fontRenderer.drawString("x${container.tomes}", 235, 10, 4210752)
+        drawItemStack(ItemStack(ObjRegistry.tome), 215, 5, "")
+    }
+
+    /**
+     * Copied from GuiContainer.class
+     * Draws an ItemStack.
+     *
+     * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
+     */
+    private fun drawItemStack(stack: ItemStack, x: Int, y: Int, altText: String) {
+        RenderHelper.disableStandardItemLighting()
+        GL11.glDisable(GL11.GL_LIGHTING)
+        GL11.glDisable(GL11.GL_DEPTH_TEST)
+        RenderHelper.enableGUIStandardItemLighting()
+        GlStateManager.translate(0.0f, 0.0f, 32.0f)
+        this.zLevel = 200.0f
+        this.itemRender.zLevel = 200.0f
+        var font: net.minecraft.client.gui.FontRenderer? = stack.item.getFontRenderer(stack)
+        if (font == null) font = fontRenderer
+        this.itemRender.renderItemAndEffectIntoGUI(stack, x, y)
+        this.itemRender.renderItemOverlayIntoGUI(font!!, stack, x, y - 0, altText)
+        this.zLevel = 0.0f
+        this.itemRender.zLevel = 0.0f
+        GL11.glEnable(GL11.GL_LIGHTING)
+        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        RenderHelper.enableStandardItemLighting()
     }
 
     companion object {

@@ -14,6 +14,7 @@ tile.pe_powerflower_MK4.name=PowerFlower MK4
 tile.pe_dm_pedestal.name=Dark Matter Pedestal
 tile.pe_rm_pedestal.name=Red Matter Pedestal
 tile.pe_bm_pedestal.name=Blue Matter Pedestal
+pe.relay.mk4=Relax MKIV
 
 pe.emc.rate10=EMC/ 10s
 pe.emc.complexity_tooltip=Complexity:
@@ -29,6 +30,17 @@ pe.tier_4=Tier 4 -
 pe.efficiency= Efficiency:
 
 pe.tome.pedestal=Speeds up crafting of nearby condensers
+pe.tomes.connected="Currently connected tomes"
 
 pe.volcanite.pedestal1=Applies fire resist, water breathing
 pe.volcanite.pedestal2=and haste every %s
+
+com.tencao.projectbalance.commands.pb.usage=/ProjectB <register/remove>
+
+com.tencao.projectbalance.commands.pb-register.usage=/ProjectB register <complexity>
+com.tencao.projectbalance.commands.pb-register.success=Successfully registered
+com.tencao.projectbalance.commands.pb-register.fail=Not holding any item
+
+com.tencao.projectbalance.commands.pb-remove.usage=/ProjectB remove
+com.tencao.projectbalance.commands.pb-remove.success=Successfully removed custom complexity
+com.tencao.projectbalance.commands.pb-remove.fail=Item doesn't have a custom complexity

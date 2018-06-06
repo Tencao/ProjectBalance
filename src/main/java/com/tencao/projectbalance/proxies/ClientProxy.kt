@@ -18,6 +18,7 @@ package com.tencao.projectbalance.proxies
 
 import com.tencao.projectbalance.ProjectBCore
 import com.tencao.projectbalance.events.PedestalEvent
+import com.tencao.projectbalance.events.TickEvents
 import com.tencao.projectbalance.events.ToolTipEvent
 import com.tencao.projectbalance.gameObjs.ObjRegistry
 import com.tencao.projectbalance.gameObjs.state.EnumMatterType
@@ -60,6 +61,7 @@ class ClientProxy: IProxy {
         MinecraftForge.EVENT_BUS.register(ObjRegistry)
         MinecraftForge.EVENT_BUS.register(PedestalEvent)
         MinecraftForge.EVENT_BUS.register(ToolTipEvent)
+        MinecraftForge.EVENT_BUS.register(TickEvents)
     }
 
     companion object {

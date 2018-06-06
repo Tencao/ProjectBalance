@@ -125,7 +125,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
         val count = tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 3, count)
+                PacketHandler.sendProgressBarUpdateInt(listener, this, 4, count)
             }
 
             tomes = count

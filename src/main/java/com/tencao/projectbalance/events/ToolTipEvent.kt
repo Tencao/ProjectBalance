@@ -21,7 +21,6 @@ import com.tencao.projectbalance.gameObjs.gui.*
 import com.tencao.projectbalance.utils.ComplexHelper
 import com.tencao.projectbalance.utils.Constants
 import moze_intel.projecte.config.ProjectEConfig
-import moze_intel.projecte.gameObjs.gui.GUITransmutation
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.block.Block
 import net.minecraft.client.Minecraft
@@ -43,11 +42,12 @@ object ToolTipEvent {
         if (ProjectEConfig.misc.emcToolTips){
             if (EMCHelper.doesItemHaveEmc(current)){
                 if (event.flags.isAdvanced)
-                    event.toolTip.add(TextFormatting.YELLOW.toString() + I18n.format("pe.emc.complexity_tooltip") + " " + TextFormatting.WHITE + ComplexHelper.getComplexity(current))
+                    event.toolTip.add(TextFormatting.YELLOW.toString() + I18n.format("pe.emc.complexity_tooltip") + " " + TextFormatting.WHITE + ComplexHelper.getComplexity(current).toInt())
                 val currentScreen = Minecraft.getMinecraft().currentScreen
                 if (currentScreen != null && (currentScreen is GUIPowerFlowerMK1 || currentScreen is GUIPowerFlowerMK2 ||
                                 currentScreen is GUIPowerFlowerMK3 || currentScreen is GUIPowerFlowerMK4 ||
-                                currentScreen is GUICondenser || currentScreen is GUICondenserMK2 || currentScreen is GUITransmutation)) {
+                                currentScreen is GUICondenser || currentScreen is GUICondenserMK2 ||
+                                currentScreen is GUITransmutation || currentScreen is GUITransmutation)) {
                     var totalSeconds = ComplexHelper.getCraftTime(current) / 20
                     if (totalSeconds <= 5)
                         totalSeconds = 0
