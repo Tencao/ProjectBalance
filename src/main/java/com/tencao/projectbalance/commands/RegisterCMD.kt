@@ -20,7 +20,6 @@ import be.bluexin.saomclib.message
 import be.bluexin.saomclib.packets.PacketPipeline
 import com.tencao.projectbalance.config.MapperConfig
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.network.SyncComplexityPacket
 import net.minecraft.command.CommandBase
 import net.minecraft.command.CommandException
@@ -39,9 +38,8 @@ object RegisterCMD: CommandBase() {
         val player = (sender as EntityPlayer)
         if (player.heldItemMainhand.isEmpty) throw CommandException("com.tencao.projectbalance.commands.pb-register.failed")
         Defaults.registerStack(player.heldItemMainhand, args[0].toInt())
-        player.message("com.tencao.projectbalance.commands.pb-register.success")
         MapperConfig.saveGraph()
-        Graph.clean()
         PacketPipeline.sendToAll(SyncComplexityPacket())
+        player.message("com.tencao.projectbalance.commands.pb-register.success")
     }
 }

@@ -16,8 +16,12 @@
 
 package com.tencao.projectbalance.events
 
+import be.bluexin.saomclib.packets.PacketPipeline
 import com.tencao.projectbalance.handlers.InternalCooldowns
+import com.tencao.projectbalance.network.SyncComplexityPacket
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.gameevent.PlayerEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 
 object TickEvents {
@@ -27,5 +31,11 @@ object TickEvents {
         if (event.phase == TickEvent.Phase.END) {
             event.player.getCapability<InternalCooldowns>(InternalCooldowns.CAPABILITY, null)!!.tick()
         }
+    }
+
+    @SubscribeEvent
+    fun playerConnect(event: PlayerEvent.PlayerLoggedInEvent){
+        val player = event.player as EntityPlayerMP
+        PacketPipeline.sendTo(SyncComplexityPacket(), player)
     }
 }

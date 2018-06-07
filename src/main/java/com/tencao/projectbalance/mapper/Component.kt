@@ -57,6 +57,12 @@ class ItemComponent(val itemStack: ItemStack) : Component(itemStack.count) {
         if (this.itemStack == ItemStack.EMPTY) throw IllegalArgumentException("$configName unknown!")
     }
 
+    init {
+        itemStack.count = 1
+        if (itemStack.isItemDamaged)
+            itemStack.itemDamage = 0
+    }
+
     override fun corresponds(other: Component?) = this === other || (other is ItemComponent && ItemStack.areItemsEqual(this.itemStack, other.itemStack)) || (other is ODComponent && other.corresponds(this))
 
     override fun equals(other: Any?): Boolean {

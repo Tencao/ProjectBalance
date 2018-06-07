@@ -16,10 +16,12 @@
 
 package com.tencao.projectbalance.config
 
+import com.tencao.projectbalance.ProjectBCore
 import com.tencao.projectbalance.mapper.Defaults
 import com.tencao.projectbalance.mapper.ItemComponent
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import java.io.File
 import java.lang.IllegalArgumentException
 
 object MapperConfig {
@@ -28,7 +30,7 @@ object MapperConfig {
     private const val CATEGORY_COMPLEXITIES = "zzComplexities"
 
     fun preInit(e: FMLPreInitializationEvent){
-        config = Configuration(e.suggestedConfigurationFile, "1")
+        config = Configuration(File(File(e.modConfigurationDirectory, ProjectBCore.NAME), "mapper.cfg"), "1")
         config.load()
 
         if (config.hasCategory(CATEGORY_VALUES)) Defaults.values.putAll(config.getCategory(CATEGORY_VALUES).mapNotNull {
@@ -46,7 +48,7 @@ object MapperConfig {
             }
         })
 
-        config.save()
+        saveGraph()
     }
 
     fun saveGraph() {

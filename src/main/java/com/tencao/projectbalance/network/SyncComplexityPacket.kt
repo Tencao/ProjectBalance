@@ -18,7 +18,6 @@ package com.tencao.projectbalance.network
 
 import be.bluexin.saomclib.packets.AbstractClientPacketHandler
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.mapper.ItemComponent
 import io.netty.buffer.ByteBuf
 import net.minecraft.entity.player.EntityPlayer
@@ -58,11 +57,9 @@ class SyncComplexityPacket: IMessage {
         class Handler : AbstractClientPacketHandler<SyncComplexityPacket>(){
             override fun handleClientPacket(player: EntityPlayer, message: SyncComplexityPacket, ctx: MessageContext, mainThread: IThreadListener): IMessage? {
                 mainThread.addScheduledTask {
-                    Defaults.values.clear()
-                    Defaults.values.putAll(message.values)
-                    Defaults.complexities.clear()
-                    Defaults.complexities.putAll(message.complexities)
-                    Graph.clean()
+                    Defaults.clear()
+                    message.values.forEach{ Defaults.values[it.key] = it.value }
+                    message.complexities.forEach{ Defaults.complexities[it.key] = it.value }
                 }
                 return null
             }

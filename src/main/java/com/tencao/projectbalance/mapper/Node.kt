@@ -26,13 +26,17 @@ open class Node(val output: Component) {
     open val value: Int by lazy {
         if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
         visitedV = true
-        Defaults.values[output] ?: recipes.map { it.value }.min() ?: 1
+        Defaults.values[output] ?:
+        recipes.map { it.value }.min() ?:
+        1
     }
 
     open val complexity: Int by lazy {
         if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
         visitedC = true
-        Defaults.complexities[output] ?:recipes.map { it.complexity }.min() ?: 1
+        Defaults.complexities[output] ?:
+        recipes.map { it.complexity }.min() ?:
+        1
     }
 
     private val recipes = mutableListOf<Recipe>()

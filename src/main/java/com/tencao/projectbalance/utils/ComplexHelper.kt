@@ -33,8 +33,8 @@ object ComplexHelper {
     fun getComplexity(stack: ItemStack): Float {
         val simpleStack = SimpleStack(stack)
         val emcCount: Int = EMCMapper.emc.getOrDefault(simpleStack, 1)
-        val complexity = Graph[ItemComponent(simpleStack.toItemStack()).makeOutput()].complexity
-        return (emcCount / 1000 + 0.5f) + complexity.toFloat()
+        return Graph[ItemComponent(simpleStack.toItemStack()).makeOutput()].complexity.toFloat()
+        //return (emcCount / 1000 + 0.5f) + complexity.toFloat()
     }
 
     /**

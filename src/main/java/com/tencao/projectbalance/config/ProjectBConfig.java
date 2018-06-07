@@ -19,7 +19,7 @@ package com.tencao.projectbalance.config;
 import com.tencao.projectbalance.ProjectBCore;
 import net.minecraftforge.common.config.Config;
 
-@Config(modid = ProjectBCore.MODID, name = ProjectBCore.NAME + "/" + ProjectBCore.NAME)
+@Config(modid = ProjectBCore.MODID, name = ProjectBCore.NAME + "/config")
 public final class ProjectBConfig {
 
     @Config.Comment({"Tweaks for various mechanics within ProjectE."})

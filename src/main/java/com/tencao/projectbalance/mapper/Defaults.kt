@@ -34,18 +34,30 @@ object Defaults {
     )
 
     init {
+        defaultValues()
+    }
+
+    fun defaultValues(){
         values.putAll(EnumDyeColor.values().map { Pair(ItemComponent(ItemStack(Items.DYE, 1, it.dyeDamage)).makeOutput(), 1) }.toTypedArray())
         complexities.putAll(EnumDyeColor.values().map { Pair(ItemComponent(ItemStack(Items.DYE, 1, it.dyeDamage)).makeOutput(), 0) }.toTypedArray())
     }
 
     fun registerStack(stack: ItemStack, complexity: Int){
-        complexities[ItemComponent(stack.copy().splitStack(1)).makeOutput()] = complexity
-        values[ItemComponent(stack.copy().splitStack(1)).makeOutput()] = complexity
+        complexities[ItemComponent(stack.copy()).makeOutput()] = complexity
+        values[ItemComponent(stack.copy()).makeOutput()] = complexity
+        if (Graph[ItemComponent(stack.copy()).makeOutput()].complexity != complexities[ItemComponent(stack.copy()).makeOutput()])
+            throw IllegalStateException()
     }
 
     fun removeStack(stack: ItemStack){
-        complexities.remove(ItemComponent(stack.copy().splitStack(1)).makeOutput())
-        values.remove(ItemComponent(stack.copy().splitStack(1)).makeOutput())
+        complexities.remove(ItemComponent(stack.copy()).makeOutput())
+        values.remove(ItemComponent(stack.copy()).makeOutput())
+    }
+
+    fun clear(){
+        values.clear()
+        complexities.clear()
+        defaultValues()
     }
 
 }

@@ -52,7 +52,7 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
     }
 
     operator fun get(stack: ItemStack): Node {
-        return graph.entries.find { it.key.equals(stack) }?.value ?: dummy
+        return get(ItemComponent(stack).makeOutput())
     }
 
     fun clear() {
@@ -94,6 +94,7 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
         constructed = true
     }
+
     fun clean() {
         clear()
         make()
