@@ -35,12 +35,13 @@ pe.tomes.connected="Currently connected tomes"
 pe.volcanite.pedestal1=Applies fire resist, water breathing
 pe.volcanite.pedestal2=and haste every %s
 
-com.tencao.projectbalance.commands.pb.usage=/ProjectB <register/remove>
+commands.pb.usage=/ProjectB <register/remove>
 
-com.tencao.projectbalance.commands.pb-register.usage=/ProjectB register <complexity>
-com.tencao.projectbalance.commands.pb-register.success=Successfully registered
-com.tencao.projectbalance.commands.pb-register.fail=Not holding any item
+commands.pb-register.usage=/ProjectB register <complexity>
+commands.pb-register.success=Successfully registered
+commands.pb-register.fail=Not currently registered
+commands.noitemerror=Not holding any item
 
-com.tencao.projectbalance.commands.pb-remove.usage=/ProjectB remove
-com.tencao.projectbalance.commands.pb-remove.success=Successfully removed custom complexity
-com.tencao.projectbalance.commands.pb-remove.fail=Item doesn't have a custom complexity
+commands.pb-remove.usage=/ProjectB remove
+commands.pb-remove.success=Successfully removed custom complexity
+commands.pb-remove.fail=Item doesn't have a custom complexity

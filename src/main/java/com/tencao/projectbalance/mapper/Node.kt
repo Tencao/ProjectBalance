@@ -26,7 +26,7 @@ open class Node(val output: Component) {
     open val value: Int by lazy {
         if (visitedV) throw IllegalStateException("Already visited $this when generating value!")
         visitedV = true
-        Defaults.values[output] ?:
+        Defaults.getValue(output.toStacks())?:
         recipes.map { it.value }.min() ?:
         1
     }
@@ -34,7 +34,7 @@ open class Node(val output: Component) {
     open val complexity: Int by lazy {
         if (visitedC) throw IllegalStateException("Already visited $this when generating complexity!")
         visitedC = true
-        Defaults.complexities[output] ?:
+        Defaults.getComplexity(output.toStacks())?:
         recipes.map { it.complexity }.min() ?:
         1
     }

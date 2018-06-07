@@ -18,7 +18,8 @@ package com.tencao.projectbalance.config
 
 import com.tencao.projectbalance.ProjectBCore
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.ItemComponent
+import moze_intel.projecte.emc.SimpleStack
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import java.io.File
@@ -30,22 +31,29 @@ object MapperConfig {
     private const val CATEGORY_COMPLEXITIES = "zzComplexities"
 
     fun preInit(e: FMLPreInitializationEvent){
-        config = Configuration(File(File(e.modConfigurationDirectory, ProjectBCore.NAME), "mapper.cfg"), "1")
+        config = Configuration(File(File(e.modConfigurationDirectory, ProjectBCore.NAME), "mapper.cfg"), "2")
         config.load()
 
         if (config.hasCategory(CATEGORY_VALUES)) Defaults.values.putAll(config.getCategory(CATEGORY_VALUES).mapNotNull {
-            try {
-                Pair(ItemComponent(it.key).makeOutput(), it.value.int)
-            } catch (e: IllegalArgumentException) {
-                null
+            val strings = it.key.split(":")
+            if (strings.isNotEmpty()) {
+                try {
+                    Pair(SimpleStack(ResourceLocation(strings[0], strings[1]), strings[2].toInt()), it.value.int)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
             }
+            else null
         })
         if (config.hasCategory(CATEGORY_COMPLEXITIES)) Defaults.complexities.putAll(config.getCategory(CATEGORY_COMPLEXITIES).mapNotNull {
-            try {
-                Pair(ItemComponent(it.key).makeOutput(), it.value.int)
-            } catch (e: IllegalArgumentException) {
-                null
-            }
+            val strings = it.key.split(":")
+            if (strings.isNotEmpty()) {
+                try {
+                    Pair(SimpleStack(ResourceLocation(strings[0], strings[1]), strings[2].toInt()), it.value.int)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            } else null
         })
 
         saveGraph()
@@ -53,10 +61,10 @@ object MapperConfig {
 
     fun saveGraph() {
         Defaults.values.forEach {
-            config[CATEGORY_VALUES, it.key.configName, it.value]
+            config[CATEGORY_VALUES, "${it.key.id}:${it.key.damage}", it.value]
         }
         Defaults.complexities.forEach {
-            config[CATEGORY_COMPLEXITIES, it.key.configName, it.value]
+            config[CATEGORY_COMPLEXITIES, "${it.key.id}:${it.key.damage}", it.value]
         }
         config.save()
     }

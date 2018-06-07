@@ -22,7 +22,7 @@ open class Recipe(val output: Component, val input: List<Component>) {
 
     open val value: Int by lazy {
         try {
-            Math.abs(input.map { it.value * it.amount }.sum()) / output.amount
+            Defaults.getValue(output.toStacks())?: Math.abs(input.map { it.value * it.amount }.sum()) / output.amount
         } catch (e: IllegalStateException) {
             Int.MAX_VALUE
         }
@@ -30,13 +30,11 @@ open class Recipe(val output: Component, val input: List<Component>) {
 
     open val complexity: Int by lazy {
         try {
-            input.map { it.complexity }.sum()
+            Defaults.getComplexity(output.toStacks())?: input.map { it.complexity }.sum()
         } catch (e: IllegalStateException) {
             Int.MAX_VALUE
         }
     }
-
-    fun amountOf(component: Component) = input.filter { it.corresponds(component) }.map { it.amount }.sum()
 
     val isBlockRecipe by lazy {
         val c = input[0]
@@ -71,5 +69,5 @@ open class Recipe(val output: Component, val input: List<Component>) {
 }
 
 class FurnaceRecipe(output: Component, input: List<Component>) : Recipe(output, input) {
-    override val complexity by lazy { (super.complexity * 1.5).toInt() }
+    override val complexity by lazy { Defaults.getComplexity(output.toStacks())?: (super.complexity * 1.5).toInt() }
 }

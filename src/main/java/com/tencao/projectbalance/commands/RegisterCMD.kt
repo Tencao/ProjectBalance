@@ -20,6 +20,7 @@ import be.bluexin.saomclib.message
 import be.bluexin.saomclib.packets.PacketPipeline
 import com.tencao.projectbalance.config.MapperConfig
 import com.tencao.projectbalance.mapper.Defaults
+import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.network.SyncComplexityPacket
 import net.minecraft.command.CommandBase
 import net.minecraft.command.CommandException
@@ -30,16 +31,17 @@ import net.minecraft.server.MinecraftServer
 
 object RegisterCMD: CommandBase() {
     override fun getName() = "register"
-    override fun getUsage(sender: ICommandSender?) = "com.tencao.projectbalance.commands.pb-register.usage"
+    override fun getUsage(sender: ICommandSender?) = "commands.pb-register.usage"
     override fun getRequiredPermissionLevel() = 2
 
     override fun execute(server: MinecraftServer?, sender: ICommandSender?, args: Array<out String>) {
-        if (args.isEmpty() ) throw WrongUsageException("com.tencao.projectbalance.commands.pb-register.usage")
+        if (args.isEmpty() ) throw WrongUsageException("commands.pb-register.usage")
         val player = (sender as EntityPlayer)
-        if (player.heldItemMainhand.isEmpty) throw CommandException("com.tencao.projectbalance.commands.pb-register.failed")
+        if (player.heldItemMainhand.isEmpty) throw CommandException("commands.noitemerror")
         Defaults.registerStack(player.heldItemMainhand, args[0].toInt())
         MapperConfig.saveGraph()
+        Graph.clean()
         PacketPipeline.sendToAll(SyncComplexityPacket())
-        player.message("com.tencao.projectbalance.commands.pb-register.success")
+        player.message("commands.pb-register.success")
     }
 }

@@ -16,6 +16,7 @@
 
 package com.tencao.projectbalance.mapper
 
+import moze_intel.projecte.emc.SimpleStack
 import net.minecraft.init.Items
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
@@ -23,14 +24,14 @@ import net.minecraft.item.ItemStack
 object Defaults {
 
     val values = hashMapOf(
-            Pair(ItemComponent(ItemStack(Items.GOLD_INGOT)).makeOutput(), 1),
-            Pair(ItemComponent(ItemStack(Items.GOLD_NUGGET)).makeOutput(), 1),
-            Pair(ItemComponent(ItemStack(Items.REDSTONE)).makeOutput(), 1)
+            Pair(SimpleStack(ItemStack(Items.GOLD_INGOT)), 1),
+            Pair(SimpleStack(ItemStack(Items.GOLD_NUGGET)), 1),
+            Pair(SimpleStack(ItemStack(Items.REDSTONE)), 1)
     )
 
     val complexities = hashMapOf(
-            Pair(ItemComponent(ItemStack(Items.GOLD_INGOT)).makeOutput(), 1),
-            Pair(ItemComponent(ItemStack(Items.REDSTONE)).makeOutput(), 1)
+            Pair(SimpleStack(ItemStack(Items.GOLD_INGOT)), 1),
+            Pair(SimpleStack(ItemStack(Items.REDSTONE)), 1)
     )
 
     init {
@@ -38,20 +39,38 @@ object Defaults {
     }
 
     fun defaultValues(){
-        values.putAll(EnumDyeColor.values().map { Pair(ItemComponent(ItemStack(Items.DYE, 1, it.dyeDamage)).makeOutput(), 1) }.toTypedArray())
-        complexities.putAll(EnumDyeColor.values().map { Pair(ItemComponent(ItemStack(Items.DYE, 1, it.dyeDamage)).makeOutput(), 0) }.toTypedArray())
+        values.putAll(EnumDyeColor.values().map { Pair(SimpleStack(ItemStack(Items.DYE, 1, it.dyeDamage)), 1) }.toTypedArray())
+        complexities.putAll(EnumDyeColor.values().map { Pair(SimpleStack(ItemStack(Items.DYE, 1, it.dyeDamage)), 0) }.toTypedArray())
     }
 
     fun registerStack(stack: ItemStack, complexity: Int){
-        complexities[ItemComponent(stack.copy()).makeOutput()] = complexity
-        values[ItemComponent(stack.copy()).makeOutput()] = complexity
-        if (Graph[ItemComponent(stack.copy()).makeOutput()].complexity != complexities[ItemComponent(stack.copy()).makeOutput()])
-            throw IllegalStateException()
+        complexities[SimpleStack(stack)] = complexity
     }
 
     fun removeStack(stack: ItemStack){
-        complexities.remove(ItemComponent(stack.copy()).makeOutput())
-        values.remove(ItemComponent(stack.copy()).makeOutput())
+        complexities.remove(SimpleStack(stack))
+    }
+
+    fun getValue(stacks: Set<ItemStack>): Int?{
+        var int = Int.MAX_VALUE
+        stacks.forEach {
+            if (values.contains(SimpleStack(it)))
+                int = Math.min(int, values[SimpleStack(it)]!!)
+        }
+        if (int == Int.MAX_VALUE)
+            return null
+        else return int
+    }
+
+    fun getComplexity(stacks: Set<ItemStack>): Int?{
+        var int = Int.MAX_VALUE
+        stacks.forEach {
+            if (complexities.contains(SimpleStack(it)))
+                int = Math.min(int, complexities[SimpleStack(it)]!!)
+        }
+        if (int == Int.MAX_VALUE)
+            return null
+        else return int
     }
 
     fun clear(){

@@ -18,8 +18,9 @@ package com.tencao.projectbalance.network
 
 import be.bluexin.saomclib.packets.AbstractClientPacketHandler
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.ItemComponent
+import com.tencao.projectbalance.mapper.Graph
 import io.netty.buffer.ByteBuf
+import moze_intel.projecte.emc.SimpleStack
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.IThreadListener
 import net.minecraftforge.fml.common.network.ByteBufUtils
@@ -28,27 +29,27 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 
 class SyncComplexityPacket: IMessage {
 
-    val values = mutableMapOf<ItemComponent, Int>()
-    val complexities = mutableMapOf<ItemComponent, Int>()
+    val values = mutableMapOf<SimpleStack, Int>()
+    val complexities = mutableMapOf<SimpleStack, Int>()
 
     override fun fromBytes(buf: ByteBuf) {
         for (i in 0 until buf.readInt()){
-            values[ItemComponent(ByteBufUtils.readItemStack(buf)).makeOutput()] = buf.readInt()
+            values[SimpleStack(ByteBufUtils.readItemStack(buf))] = buf.readInt()
         }
         for (i in 0 until buf.readInt()){
-            complexities[ItemComponent(ByteBufUtils.readItemStack(buf)).makeOutput()] = buf.readInt()
+            complexities[SimpleStack(ByteBufUtils.readItemStack(buf))] = buf.readInt()
         }
     }
 
     override fun toBytes(buf: ByteBuf) {
         buf.writeInt(Defaults.values.size)
         Defaults.values.forEach {
-            ByteBufUtils.writeItemStack(buf, it.key.itemStack)
+            ByteBufUtils.writeItemStack(buf, it.key.toItemStack())
             buf.writeInt(it.value)
         }
         buf.writeInt(Defaults.complexities.size)
         Defaults.complexities.forEach {
-            ByteBufUtils.writeItemStack(buf, it.key.itemStack)
+            ByteBufUtils.writeItemStack(buf, it.key.toItemStack())
             buf.writeInt(it.value)
         }
     }
@@ -60,6 +61,7 @@ class SyncComplexityPacket: IMessage {
                     Defaults.clear()
                     message.values.forEach{ Defaults.values[it.key] = it.value }
                     message.complexities.forEach{ Defaults.complexities[it.key] = it.value }
+                    Graph.clean()
                 }
                 return null
             }

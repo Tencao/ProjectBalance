@@ -52,7 +52,7 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
     }
 
     operator fun get(stack: ItemStack): Node {
-        return get(ItemComponent(stack).makeOutput())
+        return graph.entries.find { it.key is ItemComponent && ItemStack.areItemsEqual((it.key as ItemComponent).itemStack, stack) }?.value ?: dummy
     }
 
     fun clear() {
@@ -109,7 +109,6 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
         generateValues()
         ProjectBCore.LOGGER.info("Generated values!")
         printValues()
-        constructed = true
     }
 
     fun getODEntry(c: ODComponent) = ItemComponent(c.itemStacks.find { graph.containsKey(ItemComponent(it).makeOutput()) } ?: c.itemStacks[0]).makeOutput()

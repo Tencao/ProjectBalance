@@ -40,6 +40,10 @@ abstract class Component(var amount: Int) {
         return true
     }
 
+    open fun toStacks(): Set<ItemStack>{
+        return setOf()
+    }
+
     override fun hashCode() = amount
 
     open fun makeOutput(): ItemComponent {
@@ -57,21 +61,19 @@ class ItemComponent(val itemStack: ItemStack) : Component(itemStack.count) {
         if (this.itemStack == ItemStack.EMPTY) throw IllegalArgumentException("$configName unknown!")
     }
 
-    init {
-        itemStack.count = 1
-        if (itemStack.isItemDamaged)
-            itemStack.itemDamage = 0
-    }
-
     override fun corresponds(other: Component?) = this === other || (other is ItemComponent && ItemStack.areItemsEqual(this.itemStack, other.itemStack)) || (other is ODComponent && other.corresponds(this))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other is ItemStack) return ItemStack.areItemsEqual(itemStack, other)
+        if (other is ItemStack) return ItemStack.areItemStacksEqual(itemStack, other)
         if (!super.equals(other)) return false
         if (other !is ItemComponent) return false
 
-        return (other is ItemComponent && ItemStack.areItemStacksEqual(this.itemStack, other.itemStack)) || (other is ODComponent && other == this)
+        return ItemStack.areItemStacksEqual(this.itemStack, other.itemStack) || (other is ODComponent && other == this)
+    }
+
+    override fun toStacks(): Set<ItemStack>{
+        return setOf(itemStack)
     }
 
     override fun hashCode() = 31 * super.hashCode() + itemStack.hashCodeImpl()
@@ -94,7 +96,11 @@ class ODComponent(val itemStacks: List<ItemStack>) : Component(itemStacks[0].cou
         if (!super.equals(other)) return false
         if (other !is ODComponent) return false
 
-        return (other is ODComponent && other.itemStacks.map { Triple(it.item, it.itemDamage, it.count) } == this.itemStacks.map { Triple(it.item, it.itemDamage, it.count) }) || (other is ItemComponent && this.itemStacks.any { ItemStack.areItemStacksEqual(other.itemStack, it) })
+        return other.itemStacks.map { Triple(it.item, it.itemDamage, it.count) } == this.itemStacks.map { Triple(it.item, it.itemDamage, it.count) } || (other is ItemComponent && this.itemStacks.any { ItemStack.areItemStacksEqual(other.itemStack, it) })
+    }
+
+    override fun toStacks(): Set<ItemStack>{
+        return itemStacks.toSet()
     }
 
     override fun hashCode() = 31 * super.hashCode() + itemStacks.map { it.hashCodeImpl() }.hashCode()
