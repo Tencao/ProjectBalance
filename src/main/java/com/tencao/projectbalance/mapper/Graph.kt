@@ -38,8 +38,8 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
     private val dummy by lazy {
         object : Node(ItemComponent(ItemStack.EMPTY)) {
-            override val value = 1
-            override val complexity = 1
+            override val _value = 1
+            override val _complexity = 1
         }
     }
 

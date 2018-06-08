@@ -18,7 +18,6 @@ package com.tencao.projectbalance.network
 
 import be.bluexin.saomclib.packets.AbstractClientPacketHandler
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.Graph
 import io.netty.buffer.ByteBuf
 import moze_intel.projecte.emc.SimpleStack
 import net.minecraft.entity.player.EntityPlayer
@@ -61,7 +60,6 @@ class SyncComplexityPacket: IMessage {
                     Defaults.clear()
                     message.values.forEach{ Defaults.values[it.key] = it.value }
                     message.complexities.forEach{ Defaults.complexities[it.key] = it.value }
-                    Graph.clean()
                 }
                 return null
             }

@@ -20,7 +20,6 @@ import be.bluexin.saomclib.message
 import be.bluexin.saomclib.packets.PacketPipeline
 import com.tencao.projectbalance.config.MapperConfig
 import com.tencao.projectbalance.mapper.Defaults
-import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.network.SyncComplexityPacket
 import net.minecraft.command.CommandBase
 import net.minecraft.command.CommandException
@@ -39,7 +38,6 @@ object RemoveCMD: CommandBase() {
         Defaults.removeStack(player.heldItemMainhand)
         player.message("commands.pb-remove.success")
         MapperConfig.saveGraph()
-        Graph.clean()
         PacketPipeline.sendToAll(SyncComplexityPacket())
     }
 }

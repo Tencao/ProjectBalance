@@ -20,7 +20,7 @@ import java.lang.IllegalStateException
 
 open class Recipe(val output: Component, val input: List<Component>) {
 
-    open val value: Int by lazy {
+    open val _value: Int by lazy {
         try {
             Defaults.getValue(output.toStacks())?: Math.abs(input.map { it.value * it.amount }.sum()) / Math.max(output.amount, 1)
         } catch (e: IllegalStateException) {
@@ -28,13 +28,17 @@ open class Recipe(val output: Component, val input: List<Component>) {
         }
     }
 
-    open val complexity: Int by lazy {
+    val value get() = Defaults.getValue(output.toStacks())?: _value
+
+    open val _complexity: Int by lazy {
         try {
             Defaults.getComplexity(output.toStacks())?: input.map { it.complexity }.sum()
         } catch (e: IllegalStateException) {
             Int.MAX_VALUE
         }
     }
+
+    val complexity get() = Defaults.getComplexity(output.toStacks())?: _complexity
 
     val isBlockRecipe by lazy {
         val c = input[0]
@@ -69,5 +73,5 @@ open class Recipe(val output: Component, val input: List<Component>) {
 }
 
 class FurnaceRecipe(output: Component, input: List<Component>) : Recipe(output, input) {
-    override val complexity by lazy { Defaults.getComplexity(output.toStacks())?: (super.complexity * 1.5).toInt() }
+    override val _complexity by lazy { (super.complexity * 1.5).toInt() }
 }
