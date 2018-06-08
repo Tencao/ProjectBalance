@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "projecte:pedestal",
+    "data": 0
+  },
+  "pattern": [
+    "   ",
+    " D ",
+    "DDD"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": {
+      "item": "projecte:item.pe_matter",
+      "data": 0
+    }
+  }
+}

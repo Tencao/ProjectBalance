@@ -1,0 +1,19 @@
+{
+  "result": {
+    "item": "projecte:item.pe_matter",
+    "data": 2
+  },
+  "pattern": [
+    "DDD",
+    "DDD",
+    "DDD"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "group": "projecte:item.pe_matter_1",
+  "key": {
+    "D": {
+      "item": "projecte:item.pe_matter",
+      "data": 1
+    }
+  }
+}

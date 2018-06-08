@@ -43,7 +43,7 @@ import org.apache.logging.log4j.Logger
 @Mod(modid = ProjectBCore.MODID, name = ProjectBCore.NAME, version = ProjectBCore.VERSION, dependencies = ProjectBCore.DEPS)
 object ProjectBCore {
     const val MODID = "projectbalance"
-    const val VERSION = "1.12.2-0.0.1"
+    const val VERSION = "1.12.2-0.1.1"
     const val NAME = "ProjectBalance"
     const val DEPS = "required-after:forge@[14.23.1.2594,);" +
             "required-after:forgelin@[1.6.0,);" +

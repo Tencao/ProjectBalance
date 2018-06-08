@@ -22,7 +22,7 @@ open class Recipe(val output: Component, val input: List<Component>) {
 
     open val value: Int by lazy {
         try {
-            Defaults.getValue(output.toStacks())?: Math.abs(input.map { it.value * it.amount }.sum()) / output.amount
+            Defaults.getValue(output.toStacks())?: Math.abs(input.map { it.value * it.amount }.sum()) / Math.max(output.amount, 1)
         } catch (e: IllegalStateException) {
             Int.MAX_VALUE
         }

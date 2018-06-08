@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "projecte:condensed_relay_mk3"
+  },
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "CCC",
+    "CRC"
+  ],
+  "key": {
+    "C": {
+      "item": "projecte:collector_mk3"
+    },
+    "R": {
+      "item": "projecte:relay_mk3"
+    }
+  }
+}

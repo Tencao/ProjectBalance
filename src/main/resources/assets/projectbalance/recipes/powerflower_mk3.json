@@ -1,0 +1,19 @@
+{
+  "result": {
+    "item": "projecte:power_flower_mk3"
+  },
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "R R",
+    "RCR",
+    "R R"
+  ],
+  "key": {
+    "C": {
+      "item": "projecte:condenser_mk2"
+    },
+    "R": {
+      "item": "projecte:condensed_relay_mk3"
+    }
+  }
+}
