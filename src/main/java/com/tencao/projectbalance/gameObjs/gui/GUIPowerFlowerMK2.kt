@@ -30,7 +30,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-class GUIPowerFlowerMK2(invPlayer: InventoryPlayer, tile: PowerFlowerMK2Tile) : GuiContainer(PowerFlowerMK1Container(invPlayer, tile)) {
+class GUIPowerFlowerMK2(invPlayer: InventoryPlayer, tile: PowerFlowerMK2Tile) : GuiContainer(PowerFlowerMK1Container(invPlayer, tile)), ICraftingGUI {
     private val container: PowerFlowerMK1Container = inventorySlots as PowerFlowerMK1Container
 
     init {
@@ -67,15 +67,18 @@ class GUIPowerFlowerMK2(invPlayer: InventoryPlayer, tile: PowerFlowerMK2Tile) : 
         if (container.requiredEmc == 0) {
             this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(container.displayEmc.toLong()), 140, 10, 4210752)
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
-            if (container.tomes > 0) {
+            val totalSeconds = if (container.tomes > 0){
                 val factor = Math.min(
                         ((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(),
                         container.tomes * 2) + 1
-                val toDisplay = (container.requiredTime - container.timePassed) / (factor * 20)
-                this.fontRenderer.drawString(String.format("%02dm %02ds", toDisplay / 60, toDisplay % 60), 140, 10, 4210752)
-            } else {
-                val toDisplay = (container.requiredTime - container.timePassed) / 20
-                this.fontRenderer.drawString(String.format("%02dm %02ds", toDisplay / 60, toDisplay % 60), 140, 10, 4210752)
+                (container.requiredTime - container.timePassed) / (factor * 20)
+            } else (container.requiredTime - container.timePassed) / 20
+            val totalMinutes = (totalSeconds % 3600) / 60
+            val totalHours = totalSeconds / 3600
+            when {
+                totalHours > 0 -> this.fontRenderer.drawString(String.format("%02dh %02dm %02ds", totalHours , totalMinutes, totalSeconds % 60), 140, 10, 4210752)
+                totalMinutes > 0 -> this.fontRenderer.drawString(String.format("%02dm %02ds", totalMinutes, totalSeconds % 60), 140, 10, 4210752)
+                else -> this.fontRenderer.drawString(String.format("%02ds", totalSeconds % 60), 140, 10, 4210752)
             }
         } else {
             val toDisplay = if (container.displayEmc > container.requiredEmc) container.requiredEmc else container.displayEmc

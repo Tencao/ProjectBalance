@@ -66,31 +66,31 @@ public final class ProjectBConfig {
         @Config.RangeDouble(min = 0, max = 800)
         public double RelayBonusMK4 = 40;
 
-        @Config.RangeInt(min = 0)
+        @Config.RangeInt(min = 0, max = 93750)
         @Config.Comment("Max EMC a Collector can store.")
-        public int CollectorMaxMK1 = 10000;
+        public int CollectorMaxMK1 = 93750;
 
-        @Config.RangeInt(min = 0)
-        public int CollectorMaxMK2 = 30000;
+        @Config.RangeInt(min = 0, max = 375000)
+        public int CollectorMaxMK2 = 375000;
 
-        @Config.RangeInt(min = 0)
-        public int CollectorMaxMK3 = 60000;
+        @Config.RangeInt(min = 0, max = 1500000)
+        public int CollectorMaxMK3 = 1500000;
 
-        @Config.RangeInt(min = 0)
-        public int CollectorMaxMK4 = 120000;
+        @Config.RangeInt(min = 0, max = 6000000)
+        public int CollectorMaxMK4 = 6000000;
 
-        @Config.RangeInt(min = 0)
+        @Config.RangeInt(min = 0, max = 468750)
         @Config.Comment("Max EMC a Relay can store.")
-        public int RelayMaxMK1 = 100000;
+        public int RelayMaxMK1 = 468750;
 
-        @Config.RangeInt(min = 0)
-        public int RelayMaxMK2 = 1000000;
+        @Config.RangeInt(min = 0, max = 187500)
+        public int RelayMaxMK2 = 187500;
 
-        @Config.RangeInt(min = 0)
-        public int RelayMaxMK3 = 10000000;
+        @Config.RangeInt(min = 0, max = 7500000)
+        public int RelayMaxMK3 = 7500000;
 
-        @Config.RangeInt(min = 0)
-        public int RelayMaxMK4 = 20000000;
+        @Config.RangeInt(min = 0, max = 30000000)
+        public int RelayMaxMK4 = 30000000;
 
         @Config.RangeInt(min = 0)
         @Config.Comment("Max EMC a DM Pedestal can store.")

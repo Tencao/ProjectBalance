@@ -57,9 +57,9 @@ object Defaults {
             if (values.contains(SimpleStack(it)))
                 int = Math.min(int, values[SimpleStack(it)]!!)
         }
-        if (int == Int.MAX_VALUE)
-            return null
-        else return int
+        return if (int == Int.MAX_VALUE)
+            null
+        else int
     }
 
     fun getComplexity(stacks: Set<ItemStack>): Int?{
@@ -68,9 +68,9 @@ object Defaults {
             if (complexities.contains(SimpleStack(it)))
                 int = Math.min(int, complexities[SimpleStack(it)]!!)
         }
-        if (int == Int.MAX_VALUE)
-            return null
-        else return int
+        return if (int == Int.MAX_VALUE)
+            null
+        else int
     }
 
     fun clear(){

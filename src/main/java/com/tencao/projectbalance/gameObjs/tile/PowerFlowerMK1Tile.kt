@@ -51,8 +51,8 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     var numPlayersUsing: Int = 0
     var requiredEmc: Int = 0
     private var extraEMCAdded: Boolean = false
-    var requiredTime: Int = 0
-    var timePassed: Int = 0
+    var requiredTime: Long = 0
+    var timePassed: Long = 0
     var tomeProviders = LinkedHashSet<DMPedestalTile>()
 
     val sunLevel: Float

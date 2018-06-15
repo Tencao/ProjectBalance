@@ -28,6 +28,7 @@ import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.network.SearchUpdatePacket
 import com.tencao.projectbalance.network.SyncComplexityPacket
 import com.tencao.projectbalance.network.TransmutePacket
+import com.tencao.projectbalance.network.UpdateWindowLongPKT
 import com.tencao.projectbalance.proxies.IProxy
 import com.tencao.projectbalance.utils.GuiHandler
 import net.minecraft.entity.player.EntityPlayer
@@ -43,7 +44,7 @@ import org.apache.logging.log4j.Logger
 @Mod(modid = ProjectBCore.MODID, name = ProjectBCore.NAME, version = ProjectBCore.VERSION, dependencies = ProjectBCore.DEPS)
 object ProjectBCore {
     const val MODID = "projectbalance"
-    const val VERSION = "1.12.2-0.1.1"
+    const val VERSION = "1.12.2-0.2.0"
     const val NAME = "ProjectBalance"
     const val DEPS = "required-after:forge@[14.23.1.2594,);" +
             "required-after:forgelin@[1.6.0,);" +
@@ -68,6 +69,7 @@ object ProjectBCore {
         PacketPipeline.registerMessage(TransmutePacket::class.java, TransmutePacket.Companion.Handler::class.java)
         PacketPipeline.registerMessage(SearchUpdatePacket::class.java, SearchUpdatePacket.Companion.Handler::class.java)
         PacketPipeline.registerMessage(SyncComplexityPacket::class.java, SyncComplexityPacket.Companion.Handler::class.java)
+        PacketPipeline.registerMessage(UpdateWindowLongPKT::class.java, UpdateWindowLongPKT.Companion.Handler::class.java)
 
         ObjRegistry.register()
 

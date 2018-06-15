@@ -16,7 +16,7 @@
 
 package com.tencao.projectbalance.events
 
-import be.bluexin.saomclib.packets.PacketPipeline
+import be.bluexin.saomclib.sendPacket
 import com.tencao.projectbalance.handlers.InternalCooldowns
 import com.tencao.projectbalance.network.SyncComplexityPacket
 import net.minecraft.entity.player.EntityPlayerMP
@@ -35,7 +35,6 @@ object TickEvents {
 
     @SubscribeEvent
     fun playerConnect(event: PlayerEvent.PlayerLoggedInEvent){
-        val player = event.player as EntityPlayerMP
-        PacketPipeline.sendTo(SyncComplexityPacket(), player)
+        (event.player as EntityPlayerMP).sendPacket(SyncComplexityPacket())
     }
 }

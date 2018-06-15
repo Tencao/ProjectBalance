@@ -60,6 +60,8 @@ object MapperConfig {
     }
 
     fun saveGraph() {
+        config.removeCategory(config.getCategory(CATEGORY_VALUES))
+        config.removeCategory(config.getCategory(CATEGORY_COMPLEXITIES))
         Defaults.values.forEach {
             config[CATEGORY_VALUES, "${it.key.id}:${it.key.damage}", it.value]
         }

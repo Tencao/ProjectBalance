@@ -37,7 +37,7 @@ import org.lwjgl.opengl.GL11
 import java.io.IOException
 import java.util.*
 
-class GUITransmutation(val invPlayer: InventoryPlayer, private val inv: TransmutationInventory, hand: EnumHand?) : GuiContainer(TransmutationContainer(invPlayer, inv, hand)) {
+class GUITransmutation(val invPlayer: InventoryPlayer, private val inv: TransmutationInventory, hand: EnumHand?) : GuiContainer(TransmutationContainer(invPlayer, inv, hand)), ICraftingGUI {
     private var textBoxFilter: GuiTextField? = null
 
     init {
@@ -104,8 +104,14 @@ class GUITransmutation(val invPlayer: InventoryPlayer, private val inv: Transmut
             inv.unlearnFlag--
         }
         if (invPlayer.player.getInternalCooldowns().getRequiredTime() > 100){
-            val toDisplay = (invPlayer.player.getInternalCooldowns().getRequiredTime() - invPlayer.player.getInternalCooldowns().getTimePassed()) / 20
-            this.fontRenderer.drawString("x${invPlayer.player.getInternalCooldowns().getStack().count} " + String.format("%02dm %02ds", toDisplay / 60, toDisplay % 60), 23, 16, 4210752)
+            val totalSeconds = (invPlayer.player.getInternalCooldowns().getRequiredTime() - invPlayer.player.getInternalCooldowns().getTimePassed()) / 20
+            val totalMinutes = (totalSeconds % 3600) / 60
+            val totalHours = totalSeconds / 3600
+            when {
+                totalHours > 0 -> this.fontRenderer.drawString("x${invPlayer.player.getInternalCooldowns().getStack().count} ${String.format("%02dh %02dm %02ds", totalHours , totalMinutes, totalSeconds % 60)}", 23, 16, 4210752)
+                totalMinutes > 0 -> this.fontRenderer.drawString("x${invPlayer.player.getInternalCooldowns().getStack().count} ${String.format("%02dm %02ds", totalMinutes, totalSeconds % 60)}", 23, 16, 4210752)
+                else -> this.fontRenderer.drawString("x${invPlayer.player.getInternalCooldowns().getStack().count} ${String.format("%02ds", totalSeconds % 60)}", 23, 16, 4210752)
+            }
             drawItemStack(invPlayer.player.getInternalCooldowns().getStack(), 5, 13, "")
         }
     }

@@ -43,8 +43,8 @@ class InternalCooldowns: AbstractEntityCapability() {
     private var foodCooldown = 0
     private var healingTimer = 0
     private var foodTimer = 0
-    private var requiredTime = 0
-    private var timePassed = 0
+    private var requiredTime = 0L
+    private var timePassed = 0L
     private var stack = ItemStack.EMPTY
 
     fun triggerHealCooldown() {
@@ -88,11 +88,11 @@ class InternalCooldowns: AbstractEntityCapability() {
         return stack.copy()
     }
 
-    fun getRequiredTime(): Int{
+    fun getRequiredTime(): Long{
         return requiredTime
     }
 
-    fun getTimePassed(): Int{
+    fun getTimePassed(): Long{
         return timePassed
     }
 
@@ -100,7 +100,7 @@ class InternalCooldowns: AbstractEntityCapability() {
      * Used by server sync packet
      */
     @SideOnly(Side.CLIENT)
-    fun syncPacket(stack: ItemStack, requiredTime: Int, timePassed: Int){
+    fun syncPacket(stack: ItemStack, requiredTime: Long, timePassed: Long){
         this.stack = stack
         this.requiredTime = requiredTime
         this.timePassed = timePassed
@@ -166,8 +166,8 @@ class InternalCooldowns: AbstractEntityCapability() {
         override fun readNBT(capability: Capability<InternalCooldowns>, instance: InternalCooldowns, side: EnumFacing?, nbt: NBTBase) {
             val nbtTagCompound = nbt as? NBTTagCompound?: return
             instance.stack = ItemStack(nbtTagCompound.getCompoundTag("stack"))
-            instance.requiredTime = nbtTagCompound.getInteger("requiredTime")
-            instance.timePassed = nbtTagCompound.getInteger("timePassed")
+            instance.requiredTime = nbtTagCompound.getLong("requiredTime")
+            instance.timePassed = nbtTagCompound.getLong("timePassed")
             instance.healCooldown = nbtTagCompound.getInteger("healCooldown")
             instance.foodCooldown = nbtTagCompound.getInteger("foodCooldown")
         }
@@ -175,8 +175,8 @@ class InternalCooldowns: AbstractEntityCapability() {
         override fun writeNBT(capability: Capability<InternalCooldowns>, instance: InternalCooldowns, side: EnumFacing?): NBTBase {
             val nbt = NBTTagCompound()
             nbt.setTag("stack", instance.stack.serializeNBT())
-            nbt.setInteger("requiredTime", instance.requiredTime)
-            nbt.setInteger("timePassed", instance.timePassed)
+            nbt.setLong("requiredTime", instance.requiredTime)
+            nbt.setLong("timePassed", instance.timePassed)
             nbt.setInteger("healCooldown", instance.healCooldown)
             nbt.setInteger("foodCooldown", instance.foodCooldown)
 

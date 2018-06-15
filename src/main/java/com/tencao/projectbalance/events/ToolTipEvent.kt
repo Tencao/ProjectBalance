@@ -17,7 +17,7 @@
 package com.tencao.projectbalance.events
 
 import com.tencao.projectbalance.gameObjs.ObjRegistry
-import com.tencao.projectbalance.gameObjs.gui.*
+import com.tencao.projectbalance.gameObjs.gui.ICraftingGUI
 import com.tencao.projectbalance.utils.ComplexHelper
 import com.tencao.projectbalance.utils.Constants
 import moze_intel.projecte.config.ProjectEConfig
@@ -42,17 +42,22 @@ object ToolTipEvent {
         if (ProjectEConfig.misc.emcToolTips){
             if (EMCHelper.doesItemHaveEmc(current)){
                 if (event.flags.isAdvanced)
-                    event.toolTip.add(TextFormatting.YELLOW.toString() + I18n.format("pe.emc.complexity_tooltip") + " " + TextFormatting.WHITE + ComplexHelper.getComplexity(current).toInt())
+                    event.toolTip.add(TextFormatting.YELLOW.toString() + I18n.format("pe.emc.complexity_tooltip") + " " + TextFormatting.WHITE + moze_intel.projecte.utils.Constants.EMC_FORMATTER.format(ComplexHelper.getComplexity(current)))
                 val currentScreen = Minecraft.getMinecraft().currentScreen
-                if (currentScreen != null && (currentScreen is GUIPowerFlowerMK1 || currentScreen is GUIPowerFlowerMK2 ||
-                                currentScreen is GUIPowerFlowerMK3 || currentScreen is GUIPowerFlowerMK4 ||
-                                currentScreen is GUICondenser || currentScreen is GUICondenserMK2 ||
-                                currentScreen is GUITransmutation || currentScreen is GUITransmutation)) {
+                if (currentScreen is ICraftingGUI) {
                     var totalSeconds = ComplexHelper.getCraftTime(current) / 20
                     if (totalSeconds <= 5)
                         totalSeconds = 0
-                    event.toolTip.add(TextFormatting.YELLOW.toString() + I18n.format("pe.emc.craft_time") + " " +
-                            TextFormatting.WHITE + String.format("%02dm %02ds", totalSeconds / 60, totalSeconds % 60))
+                    val totalMinutes = (totalSeconds % 3600) / 60
+                    val totalHours = totalSeconds / 3600
+                    when {
+                        totalHours > 0 -> event.toolTip.add("${TextFormatting.YELLOW}${I18n.format("pe.emc.craft_time")}" +
+                                "${TextFormatting.WHITE} ${String.format("%02dh %02dm %02ds", totalHours , totalMinutes, totalSeconds % 60)}")
+                        totalMinutes > 0 -> event.toolTip.add("${TextFormatting.YELLOW}${I18n.format("pe.emc.craft_time")}" +
+                                "${TextFormatting.WHITE} ${String.format("%02dm %02ds", totalMinutes, totalSeconds % 60)}")
+                        else -> event.toolTip.add("${TextFormatting.YELLOW}${I18n.format("pe.emc.craft_time")}" +
+                                "${TextFormatting.WHITE} ${String.format("%02ds", totalSeconds % 60)}")
+                    }
                 }
             }
         }

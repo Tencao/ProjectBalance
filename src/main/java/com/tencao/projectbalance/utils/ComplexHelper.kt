@@ -20,6 +20,7 @@ import com.tencao.projectbalance.mapper.Graph
 import com.tencao.projectbalance.mapper.ItemComponent
 import moze_intel.projecte.emc.EMCMapper
 import moze_intel.projecte.emc.SimpleStack
+import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.item.ItemStack
 
 object ComplexHelper {
@@ -42,8 +43,9 @@ object ComplexHelper {
      * @param stack The ItemStack to check for
      * @return Returns the time in ticks for it to be crafted
      */
-    fun getCraftTime(stack: ItemStack): Int {
-        val simpleStack = SimpleStack(stack)
-        return EMCMapper.getEmcValue(simpleStack) * getComplexity(stack).toInt() / 60 / 60
+    fun getCraftTime(stack: ItemStack): Long  {
+        val emc = EMCHelper.getEmcValue(stack)
+        val complexity = getComplexity(stack)
+        return ((emc * complexity) / (emc + complexity)).toLong() * 10
     }
 }
