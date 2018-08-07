@@ -45,3 +45,11 @@ commands.noitemerror=Not holding any item
 commands.pb-remove.usage=/ProjectB remove
 commands.pb-remove.success=Successfully removed custom complexity
 commands.pb-remove.fail=Item doesn't have a custom complexity
+
+pe.divining.results=Results for mode %s
+pe.divining.avgemc=Average EMC:  %s
+pe.divining.totalemc=Total EMC:  %s
+pe.divining.noemc=Not enough EMC
+
+pe.bmfurnace.shortname=BM Furnace
+tile.pe_bm_furnace.name=Blue Matter Furnace

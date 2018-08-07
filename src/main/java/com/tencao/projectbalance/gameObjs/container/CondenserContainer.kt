@@ -16,9 +16,8 @@
 
 package com.tencao.projectbalance.gameObjs.container
 
-import be.bluexin.saomclib.sendPacket
 import com.tencao.projectbalance.gameObjs.tile.CondenserTile
-import com.tencao.projectbalance.network.UpdateWindowLongPKT
+import moze_intel.projecte.gameObjs.container.LongContainer
 import moze_intel.projecte.gameObjs.container.slots.SlotCondenserLock
 import moze_intel.projecte.gameObjs.container.slots.SlotPredicates
 import moze_intel.projecte.gameObjs.container.slots.ValidatedSlot
@@ -26,32 +25,30 @@ import moze_intel.projecte.network.PacketHandler
 import moze_intel.projecte.utils.Constants
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.ClickType
-import net.minecraft.inventory.Container
 import net.minecraft.inventory.IContainerListener
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: CondenserTile) : Container(), IWindowLongProp {
-    var displayEmc: Int = 0
-    var requiredEmc: Int = 0
+open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: CondenserTile) : LongContainer() {
+    var displayEmc: Long = 0
+    var requiredEmc: Long = 0
     var requiredTime: Long = 0
     var timePassed: Long = 0
     var tomes: Int = 0
 
     val progressScaled: Int
         get() {
-            if (requiredEmc == 0) {
+            if (requiredEmc == 0L) {
                 return 0
             }
 
             return if (displayEmc >= requiredEmc && requiredTime > 100) {
                 (timePassed * Constants.MAX_CONDENSER_PROGRESS / requiredTime).toInt()
-            } else displayEmc * Constants.MAX_CONDENSER_PROGRESS / requiredEmc
+            } else (displayEmc * Constants.MAX_CONDENSER_PROGRESS / requiredEmc).toInt()
 
         }
 
@@ -83,13 +80,11 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
 
     override fun addListener(listener: IContainerListener) {
         super.addListener(listener)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.displayEmc)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 1, tile.requiredEmc)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 2, tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt())
-        if (listener is EntityPlayerMP){
-            listener.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 0.toShort(), tile.requiredTime))
-            listener.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 1.toShort(), tile.timePassed))
-        }
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 0, tile.displayEmc)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 2, tile.requiredTime)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.timePassed)
+        PacketHandler.sendProgressBarUpdateInt(listener, this, 2, tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt())
     }
 
     override fun detectAndSendChanges() {
@@ -97,7 +92,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
 
         if (displayEmc != tile.displayEmc) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.displayEmc)
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 0, tile.displayEmc)
             }
 
             displayEmc = tile.displayEmc
@@ -105,13 +100,13 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
 
         if (requiredEmc != tile.requiredEmc) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 1, tile.requiredEmc)
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
             }
 
             requiredEmc = tile.requiredEmc
         }
 
-        val count = tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt()
+        val count = tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
                 PacketHandler.sendProgressBarUpdateInt(listener, this, 2, count)
@@ -123,7 +118,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
 
         if (requiredTime != tile.requiredTime) {
             for (listener in listeners) {
-                (listener as? EntityPlayerMP)?.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 0.toShort(), tile.requiredTime))
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.requiredTime)
             }
 
             requiredTime = tile.requiredTime
@@ -131,7 +126,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
 
         if (timePassed != tile.timePassed) {
             for (listener in listeners) {
-                (listener as? EntityPlayerMP)?.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 1.toShort(), tile.timePassed))
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 4, tile.timePassed)
             }
 
             timePassed = tile.timePassed
@@ -141,16 +136,19 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
     @SideOnly(Side.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         when (id) {
-            0 -> displayEmc = data
-            1 -> requiredEmc = data
-            2 -> tomes = data
+            0 -> tomes = data
         }
     }
 
-    override fun updateProgressBar(id: Int, data: Long){
+    @SideOnly(Side.CLIENT)
+    override fun updateProgressBarLong(id: Int, data: Long) {
+        super.updateProgressBarLong(id, data)
+
         when (id) {
-            0 -> requiredTime = data
-            1 -> timePassed = data
+            0 -> displayEmc = data
+            1 -> requiredEmc = data
+            2 -> requiredTime = data
+            3 -> timePassed = data
         }
     }
 

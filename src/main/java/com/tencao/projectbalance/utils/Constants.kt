@@ -95,4 +95,7 @@ object Constants {
     const val CONDENSER_MK2_GUI = 17
     const val TRANSMUTE_STONE_GUI = 18
     const val TRANSMUTATION_GUI = 19
+    const val DM_FURNACE_GUI = 20
+    const val RM_FURNACE_GUI = 21
+    const val BM_FURNACE_GUI = 22
 }

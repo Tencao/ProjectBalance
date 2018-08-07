@@ -89,7 +89,7 @@ dependencies {
 
     compile "net.shadowfacts:Forgelin:${forgelin_version}"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "be.bluexin:saomc-lib:1.12.1-1.2.+:deobf"
+    compile "be.bluexin:saomc-lib:1.12.2-1.+:deobf"
 }
 
 configurations {

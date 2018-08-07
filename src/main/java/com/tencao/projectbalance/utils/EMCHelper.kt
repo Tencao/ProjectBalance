@@ -20,7 +20,7 @@ import moze_intel.projecte.api.item.IItemEmc
 import moze_intel.projecte.emc.FuelMapper
 import moze_intel.projecte.utils.EMCHelper.getEmcValue
 import net.minecraftforge.items.IItemHandler
-import java.util.LinkedHashMap
+import java.util.*
 
 object EMCHelper {
 
@@ -31,7 +31,7 @@ object EMCHelper {
     fun consumeInvFuel(inv: IItemHandler, minFuel: Double): Double {
         val map = LinkedHashMap<Int, Int>()
         var metRequirement = false
-        var emcConsumed = 0
+        var emcConsumed = 0L
 
         for (i in 0 until inv.slots) {
             val stack = inv.getStackInSlot(i)

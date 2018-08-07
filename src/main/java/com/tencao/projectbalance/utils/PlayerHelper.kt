@@ -14,13 +14,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tencao.projectbalance.gameObjs.container
+package com.tencao.projectbalance.utils
 
-import net.minecraftforge.fml.relauncher.Side
-import net.minecraftforge.fml.relauncher.SideOnly
-
-interface IWindowLongProp {
-
-    @SideOnly(Side.CLIENT)
-    fun updateProgressBar(id: Int, data: Long)
-}
+object PlayerHelper

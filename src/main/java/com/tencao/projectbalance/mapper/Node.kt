@@ -40,7 +40,7 @@ open class Node(val output: Component) {
 
     val complexity get() = Defaults.getComplexity(output.toStacks())?: _complexity
 
-    private val recipes = mutableListOf<Recipe>()
+    internal val recipes = mutableListOf<Recipe>()
     fun add(recipe: Recipe) = recipes.add(recipe)
     override fun toString() = "Node of $output recipes :\n\t\t${recipes.joinToString("\n\t\t")}"
 

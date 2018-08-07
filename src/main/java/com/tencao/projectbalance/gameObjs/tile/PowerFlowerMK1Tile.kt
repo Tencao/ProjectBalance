@@ -45,11 +45,11 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     private val automationInventory = this.createAutomationInventory()
     val lock: ItemStackHandler = this.StackHandler(1)
     private var ticksSinceSync: Int = 0
-    var displayEmc: Int = 0
+    var displayEmc: Long = 0
     var lidAngle: Float = 0.toFloat()
     var prevLidAngle: Float = 0.toFloat()
     var numPlayersUsing: Int = 0
-    var requiredEmc: Int = 0
+    var requiredEmc: Long = 0
     private var extraEMCAdded: Boolean = false
     var requiredTime: Long = 0
     var timePassed: Long = 0
@@ -118,9 +118,9 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
 
         checkLockAndUpdate()
 
-        displayEmc = this.storedEmc.toInt()
+        displayEmc = this.storedEmc.toLong()
 
-        if (!lock.getStackInSlot(0).isEmpty && requiredEmc != 0) {
+        if (!lock.getStackInSlot(0).isEmpty && requiredEmc != 0L) {
             condense()
         }
 

@@ -58,7 +58,7 @@ class GUICondenser(invPlayer: InventoryPlayer, tile: CondenserTile) : GuiContain
     }
 
     override fun drawGuiContainerForegroundLayer(var1: Int, var2: Int) {
-        if (container.requiredEmc == 0) {
+        if (container.requiredEmc == 0L) {
             this.fontRenderer.drawString("0", 140, 10, 4210752)
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
             val totalSeconds = if (container.tomes > 0){
@@ -76,7 +76,7 @@ class GUICondenser(invPlayer: InventoryPlayer, tile: CondenserTile) : GuiContain
             }
         } else {
             val toDisplay = if (container.displayEmc > container.requiredEmc) container.requiredEmc else container.displayEmc
-            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(toDisplay.toLong()), 140, 10, 4210752)
+            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(toDisplay), 140, 10, 4210752)
         }
         this.fontRenderer.drawString("x${container.tomes}", 235, 10, 4210752)
         drawItemStack(ItemStack(ObjRegistry.tome), 215, 5, "")

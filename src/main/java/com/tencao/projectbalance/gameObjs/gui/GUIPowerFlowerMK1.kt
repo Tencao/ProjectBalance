@@ -64,8 +64,8 @@ class GUIPowerFlowerMK1(invPlayer: InventoryPlayer, tile: PowerFlowerMK1Tile) : 
     }
 
     override fun drawGuiContainerForegroundLayer(var1: Int, var2: Int) {
-        if (container.requiredEmc == 0) {
-            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(container.displayEmc.toLong()), 140, 10, 4210752)
+        if (container.requiredEmc == 0L) {
+            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(container.displayEmc), 140, 10, 4210752)
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
             val totalSeconds = if (container.tomes > 0){
                 val factor = Math.min(
@@ -82,7 +82,7 @@ class GUIPowerFlowerMK1(invPlayer: InventoryPlayer, tile: PowerFlowerMK1Tile) : 
             }
         } else {
             val toDisplay = if (container.displayEmc > container.requiredEmc) container.requiredEmc else container.displayEmc
-            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(toDisplay.toLong()), 140, 10, 4210752)
+            this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(toDisplay), 140, 10, 4210752)
         }
         this.fontRenderer.drawString("x${container.tomes}", 235, 10, 4210752)
         drawItemStack(ItemStack(ObjRegistry.tome), 215, 5, "")

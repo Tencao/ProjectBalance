@@ -89,27 +89,27 @@ class TransmutationContainer(invPlayer: InventoryPlayer, val transmutationInvent
 
         val stack = slot.stack
         val newStack = stack.copy()
+        newStack.count = 1
 
-        if (slotIndex <= 7)
-        //Input Slots
-        {
+        if (slotIndex <= 7) { //Input Slots
             return ItemStack.EMPTY
-        } else if (slotIndex in 11..26)
-        // Output Slots
-        {
+        } else if (slotIndex in 11..26) { // Output Slots
             val emc = EMCHelper.getEmcValue(newStack)
 
-            while (transmutationInventory.provider.emc >= emc) {
-                transmutationInventory.removeEmc(emc.toDouble())
-                if (player?.world?.isRemote == false)
-                    player.getInternalCooldowns().setStack(newStack)
+            for (i in 1..player!!.getInternalCooldowns().getStackLimit(newStack)) {
+                if (transmutationInventory.provider.emc >= emc) {
+                    transmutationInventory.removeEmc(emc.toDouble())
+                    player.getInternalCooldowns().setStack(newStack.copy())
+                } else break
             }
 
-            transmutationInventory.updateClientTargets()
+            if (player.world.isRemote)
+                transmutationInventory.updateClientTargets()
+
         } else if (slotIndex > 26) {
             val emc = EMCHelper.getEmcSellValue(stack)
 
-            if (emc == 0) {
+            if (emc == 0L) {
                 return ItemStack.EMPTY
             }
 

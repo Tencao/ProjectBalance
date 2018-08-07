@@ -123,7 +123,7 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
                 return 0.0
             }
 
-            val reqEmc: Int
+            val reqEmc: Long
 
             if (!lock.isEmpty) {
                 reqEmc = EMCHelper.getEmcValue(lock) - EMCHelper.getEmcValue(upgrading)

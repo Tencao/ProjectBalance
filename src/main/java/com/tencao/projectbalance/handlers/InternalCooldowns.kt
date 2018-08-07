@@ -20,16 +20,23 @@ import be.bluexin.saomclib.capabilities.AbstractEntityCapability
 import be.bluexin.saomclib.capabilities.Key
 import be.bluexin.saomclib.onClient
 import be.bluexin.saomclib.onServer
+import com.google.common.math.LongMath
 import com.tencao.projectbalance.ProjectBCore
 import com.tencao.projectbalance.config.ProjectBConfig
 import com.tencao.projectbalance.utils.ComplexHelper
+import moze_intel.projecte.api.ProjectEAPI
+import moze_intel.projecte.utils.Constants
+import moze_intel.projecte.utils.EMCHelper
 import moze_intel.projecte.utils.ItemHelper
+import moze_intel.projecte.utils.PlayerHelper
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityInject
 import net.minecraftforge.fml.relauncher.Side
@@ -75,9 +82,25 @@ class InternalCooldowns: AbstractEntityCapability() {
 
     fun setStack(stack: ItemStack){
         if (ItemStack.areItemsEqual(stack, this.stack)){
-            this.stack.count++
+            if ((this.stack.count + stack.count) < this.stack.maxStackSize)
+                this.stack.count += stack.count
+            else
+                this.stack.count = stack.maxStackSize
         }
         else {
+            val player = (reference.get() as EntityPlayer)
+            if (!this.stack.isEmpty){
+                val provider = player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY, null)!!
+                provider.emc = provider.emc + LongMath.checkedMultiply(EMCHelper.getEmcSellValue(this.stack), this.stack.count.toLong()).toDouble()
+
+                if (provider.emc >= Constants.TILE_MAX_EMC || provider.emc < 0) {
+                    provider.emc = Constants.TILE_MAX_EMC.toDouble()
+                }
+
+                if (!player.entityWorld.isRemote) {
+                    PlayerHelper.updateScore(player as EntityPlayerMP, PlayerHelper.SCOREBOARD_EMC, MathHelper.floor(provider.emc))
+                }
+            }
             this.stack = stack
             requiredTime = ComplexHelper.getCraftTime(stack)
             timePassed = 0
@@ -85,7 +108,16 @@ class InternalCooldowns: AbstractEntityCapability() {
     }
 
     fun getStack(): ItemStack{
-        return stack.copy()
+        return stack
+    }
+
+    fun getStackLimit(stack: ItemStack): Int{
+        return if (this.stack.isStackable) {
+            if (ItemStack.areItemsEqual(stack, this.stack))
+                this.stack.maxStackSize - this.stack.count
+            else stack.maxStackSize
+        }
+        else 0
     }
 
     fun getRequiredTime(): Long{

@@ -16,9 +16,8 @@
 
 package com.tencao.projectbalance.gameObjs.container
 
-import be.bluexin.saomclib.sendPacket
 import com.tencao.projectbalance.gameObjs.tile.PowerFlowerMK1Tile
-import com.tencao.projectbalance.network.UpdateWindowLongPKT
+import moze_intel.projecte.gameObjs.container.LongContainer
 import moze_intel.projecte.gameObjs.container.slots.SlotCondenserLock
 import moze_intel.projecte.gameObjs.container.slots.SlotPredicates
 import moze_intel.projecte.gameObjs.container.slots.ValidatedSlot
@@ -26,19 +25,17 @@ import moze_intel.projecte.network.PacketHandler
 import moze_intel.projecte.utils.Constants
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.inventory.ClickType
-import net.minecraft.inventory.Container
 import net.minecraft.inventory.IContainerListener
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile: PowerFlowerMK1Tile) : Container(), IWindowLongProp {
-    var displayEmc: Int = 0
-    var requiredEmc: Int = 0
+open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile: PowerFlowerMK1Tile) : LongContainer() {
+    var displayEmc: Long = 0
+    var requiredEmc: Long = 0
     var requiredTime: Long = 0
     var timePassed: Long = 0
     var tomes: Int = 0
@@ -46,13 +43,13 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
     val progressScaled: Int
         get() {
-            if (requiredEmc == 0) {
-                return displayEmc * Constants.MAX_CONDENSER_PROGRESS / tile.maximumEmc.toInt()
+            if (requiredEmc == 0L) {
+                return (displayEmc * Constants.MAX_CONDENSER_PROGRESS / tile.maximumEmc).toInt()
             }
 
             return if (displayEmc >= requiredEmc && requiredTime > 100) {
                 (timePassed * Constants.MAX_CONDENSER_PROGRESS / requiredTime).toInt()
-            } else displayEmc * Constants.MAX_CONDENSER_PROGRESS / requiredEmc
+            } else (displayEmc * Constants.MAX_CONDENSER_PROGRESS / requiredEmc).toInt()
 
         }
 
@@ -84,14 +81,12 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
     override fun addListener(listener: IContainerListener) {
         super.addListener(listener)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.displayEmc)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 1, tile.requiredEmc)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 2, tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt())
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 3, (tile.sunLevel * 16f).toInt())
-        if (listener is EntityPlayerMP){
-            listener.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 0.toShort(), tile.requiredTime))
-            listener.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 1.toShort(), tile.timePassed))
-        }
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 0, tile.displayEmc)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 2, tile.displayEmc)
+        PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.requiredEmc)
+        PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt())
+        PacketHandler.sendProgressBarUpdateInt(listener, this, 1, (tile.sunLevel * 16f).toInt())
     }
 
     override fun detectAndSendChanges() {
@@ -99,7 +94,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
         if (displayEmc != tile.displayEmc) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.displayEmc)
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 0, tile.displayEmc)
             }
 
             displayEmc = tile.displayEmc
@@ -107,17 +102,33 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
         if (requiredEmc != tile.requiredEmc) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 1, tile.requiredEmc)
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
             }
 
             requiredEmc = tile.requiredEmc
         }
 
+        if (requiredTime != tile.requiredTime) {
+            for (listener in listeners) {
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 2, tile.requiredEmc)
+            }
 
-        val count = tile.tomeProviders.stream().filter({ it -> it.hasRequiredEMC(20.0, true) }).count().toInt()
+            requiredTime = tile.requiredTime
+        }
+
+        if (timePassed != tile.timePassed) {
+            for (listener in listeners) {
+                PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.timePassed)
+            }
+
+            timePassed = tile.timePassed
+        }
+
+
+        val count = tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
-                PacketHandler.sendProgressBarUpdateInt(listener, this, 2, count)
+                PacketHandler.sendProgressBarUpdateInt(listener, this, 0, count)
             }
 
             tomes = count
@@ -126,44 +137,29 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
 
         if (sunLevel != (tile.sunLevel * 16f).toInt()) {
             for (icrafting in this.listeners) {
-                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 3, (tile.sunLevel * 16f).toInt())
+                PacketHandler.sendProgressBarUpdateInt(icrafting, this, 1, (tile.sunLevel * 16f).toInt())
             }
 
             sunLevel = (tile.sunLevel * 16f).toInt()
         }
 
-        if (requiredTime != tile.requiredTime) {
-            for (listener in listeners) {
-                (listener as? EntityPlayerMP)?.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 0.toShort(), tile.requiredTime))
-            }
-
-            requiredTime = tile.requiredTime
-        }
-
-        if (timePassed != tile.timePassed) {
-            for (listener in listeners) {
-                (listener as? EntityPlayerMP)?.sendPacket(UpdateWindowLongPKT(this.windowId.toShort(), 1.toShort(), tile.timePassed))
-            }
-
-            timePassed = tile.timePassed
-        }
     }
 
     @SideOnly(Side.CLIENT)
     override fun updateProgressBar(id: Int, data: Int) {
         when (id) {
-            0 -> displayEmc = data
-            1 -> requiredEmc = data
             2 -> tomes = data
             3 -> sunLevel = data
         }
     }
 
     @SideOnly(Side.CLIENT)
-    override fun updateProgressBar(id: Int, data: Long){
+    override fun updateProgressBarLong(id: Int, data: Long) {
         when (id) {
-            0 -> requiredTime = data
-            1 -> timePassed = data
+            0 -> displayEmc = data
+            1 -> requiredEmc = data
+            2 -> requiredTime = data
+            3 -> timePassed = data
         }
     }
 

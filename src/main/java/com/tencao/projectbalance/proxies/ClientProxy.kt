@@ -155,6 +155,9 @@ class ClientProxy: IProxy {
             registerBlock(ObjRegistry.powerFlowerMK2)
             registerBlock(ObjRegistry.powerFlowerMK3)
             registerBlock(ObjRegistry.powerFlowerMK4)
+            registerBlock(ObjRegistry.dmFurnaceOff)
+            registerBlock(ObjRegistry.rmFurnaceOff)
+            registerBlock(ObjRegistry.bmFurnaceOff)
         }
 
         private fun registerBlock(b: Block) {

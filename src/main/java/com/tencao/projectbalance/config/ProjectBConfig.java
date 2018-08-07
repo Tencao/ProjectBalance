@@ -231,5 +231,7 @@ public final class ProjectBConfig {
         @Config.RangeInt(min = 0)
         @Config.Comment("The max EMC the Gem armor can store.")
         public int foodDuration = 20;
+
+        public boolean allowItemEnchants = false;
     }
 }

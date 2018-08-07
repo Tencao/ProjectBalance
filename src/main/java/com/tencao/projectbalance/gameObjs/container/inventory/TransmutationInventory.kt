@@ -16,6 +16,7 @@
 
 package com.tencao.projectbalance.gameObjs.container.inventory
 
+import com.tencao.projectbalance.mapper.Graph
 import moze_intel.projecte.api.ProjectEAPI
 import moze_intel.projecte.api.capabilities.IKnowledgeProvider
 import moze_intel.projecte.emc.FuelMapper
@@ -29,6 +30,7 @@ import net.minecraftforge.items.IItemHandlerModifiable
 import net.minecraftforge.items.ItemStackHandler
 import net.minecraftforge.items.wrapper.CombinedInvWrapper
 import java.util.*
+import kotlin.streams.toList
 
 class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY, null)!!.inputAndLocks as IItemHandlerModifiable,
         ItemStackHandler(2), ItemStackHandler(16)) {
@@ -63,17 +65,39 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         }
 
         if (!provider.hasKnowledge(stack)) {
-            learnFlag = 300
-            unlearnFlag = 0
-
-            if (stack.hasTagCompound() && !NBTWhitelist.shouldDupeWithNBT(stack)) {
-                stack.tagCompound = null
+            var canAdd = true
+            if (Graph[stack].complexity > 1) {
+                val recipes = Graph[stack]
+                        .recipes
+                        .parallelStream()
+                        .filter {
+                            it.input
+                                    .stream()
+                                    .filter {
+                                        it.toStacks()
+                                                .stream()
+                                                .anyMatch(EMCHelper::doesItemHaveEmc)
+                                    }
+                                    .count() > 0
+                        }
+                        .toList()
+                if (recipes.isNotEmpty()) {
+                    canAdd = recipes.stream().filter { it.input.stream().allMatch { it.toStacks().any { EMCHelper.doesItemHaveEmc(it) && provider.hasKnowledge(it) } } }.findFirst().isPresent
+                }
             }
+            if (canAdd) {
+                learnFlag = 300
+                unlearnFlag = 0
 
-            provider.addKnowledge(stack)
+                if (stack.hasTagCompound() && !NBTWhitelist.shouldDupeWithNBT(stack)) {
+                    stack.tagCompound = null
+                }
 
-            if (!player.entityWorld.isRemote) {
-                provider.sync(player as EntityPlayerMP)
+                provider.addKnowledge(stack)
+
+                if (!player.entityWorld.isRemote) {
+                    provider.sync(player as EntityPlayerMP)
+                }
             }
         }
 
