@@ -29,10 +29,10 @@ import net.minecraftforge.common.ISpecialArmor
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-abstract class GemArmorBase(armorType: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorType, ProjectBConfig.tweaks.BMMaxEMC), ISpecialArmor {
+abstract class GemArmorBase(armorType: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorType, ProjectBConfig.tweaks.BMMaxEMC.toLong()), ISpecialArmor {
     init {
         this.creativeTab = ObjHandler.cTab
-        this.unlocalizedName = "pe_gem_armor_" + armorType.index
+        this.translationKey = "pe_gem_armor_" + armorType.index
         this.maxDamage = 0
     }
 

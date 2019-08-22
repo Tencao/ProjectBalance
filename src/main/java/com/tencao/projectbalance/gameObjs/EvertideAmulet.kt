@@ -32,9 +32,9 @@ class EvertideAmulet: EvertideAmulet() {
         if (!world.isRemote && ProjectEConfig.pedestalCooldown.evertidePedCooldown != -1) {
             val te = world.getTileEntity(pos) as? DMPedestalTile ?: return
 
-            if (te.hasRequiredEMC(ProjectBConfig.tweaks.EvertideAmuletPedestalCost.toDouble(), true)) {
+            if (te.hasRequiredEMC(ProjectBConfig.tweaks.EvertideAmuletPedestalCost.toLong(), true)) {
                 for (player in world.getEntitiesWithinAABB(EntityPlayerMP::class.java, te.getEffectBounds())) {
-                    if (te.hasRequiredEMC(ProjectBConfig.tweaks.EvertideAmuletPedestalCost.toDouble(), false)) {
+                    if (te.hasRequiredEMC(ProjectBConfig.tweaks.EvertideAmuletPedestalCost.toLong(), false)) {
                         player.addPotionEffect(PotionEffect(MobEffects.WATER_BREATHING, 600))
                         player.addPotionEffect(PotionEffect(MobEffects.NIGHT_VISION, 600))
                         player.addPotionEffect(PotionEffect(MobEffects.HASTE, 600))

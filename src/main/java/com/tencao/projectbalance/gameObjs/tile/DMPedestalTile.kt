@@ -53,6 +53,7 @@ import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandlerModifiable
 import java.util.*
 import kotlin.collections.LinkedHashSet
+import kotlin.math.min
 
 open class DMPedestalTile: TileEmc, IEmcAcceptor {
 
@@ -73,7 +74,7 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
         this.RANGE = 4
     }
 
-    constructor(range: Int, maxEMC: Int): super(maxEMC){
+    constructor(range: Int, maxEMC: Long): super(maxEMC){
         this.RANGE = range
     }
 
@@ -128,13 +129,13 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
         return inventory.getStackInSlot(0).item
     }
 
-    fun requiredEMC(): Double {
+    fun requiredEMC(): Long {
         return if (getItem() is IItemEmc) {
             (getItem() as IItemEmc).getMaximumEmc(inventory.getStackInSlot(0)) - (getItem() as IItemEmc).getStoredEmc(inventory.getStackInSlot(0))
         } else maximumEMC - currentEMC
     }
 
-    fun hasRequiredEMC(emcCost: Double, simulate: Boolean): Boolean {
+    fun hasRequiredEMC(emcCost: Long, simulate: Boolean): Boolean {
         if (getItem() is IItemEmc) {
             if (emcCost <= (getItem() as IItemEmc).getStoredEmc(inventory.getStackInSlot(0))) {
                 if (!simulate)
@@ -224,7 +225,7 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
             spawnEMCParticles(BlockPos(x, y, z), it.getPos())
         }
 
-        players.forEach { key, value ->
+        players.forEach { (key, value) ->
             value.forEach { armor -> sendEMC(armor, toSend) }
             val x = pos.x - key.posX
             val y = pos.y - key.posY
@@ -357,29 +358,29 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
         return inventory
     }
 
-    private fun sendEMC(tile: DMPedestalTile, emc: Double) {
-        val toAdd: Double = Math.min(emc, Constants.RELAY_MK2_OUTPUT.toDouble())
+    private fun sendEMC(tile: DMPedestalTile, emc: Long) {
+        val toAdd = min(emc, Constants.RELAY_MK2_OUTPUT)
 
         val emcSent = tile.acceptEMC(EnumFacing.DOWN, toAdd)
 
         (inventory.getStackInSlot(0).item as IItemEmc).extractEmc(inventory.getStackInSlot(0), emcSent)
     }
 
-    private fun sendEMC(stack: ItemStack, emc: Double) {
-        val toAdd = Math.min(emc, Constants.RELAY_MK2_OUTPUT.toDouble())
+    private fun sendEMC(stack: ItemStack, emc: Long) {
+        val toAdd = min(emc, Constants.RELAY_MK2_OUTPUT)
 
         val emcSent = (stack.item as ArmorBase).acceptEMC(stack, toAdd)
 
         (inventory.getStackInSlot(0).item as IItemEmc).extractEmc(inventory.getStackInSlot(0), emcSent)
     }
 
-    override fun acceptEMC(side: EnumFacing, toAccept: Double): Double {
+    override fun acceptEMC(side: EnumFacing, toAccept: Long): Long {
         if (inventory.getStackInSlot(0).item is IItemEmc) {
             val itemEmc = (inventory.getStackInSlot(0).item as IItemEmc)
 
             val storedEmc = itemEmc.getStoredEmc(inventory.getStackInSlot(0))
             val maxEmc = itemEmc.getMaximumEmc(inventory.getStackInSlot(0))
-            var toAdd = Math.min(maxEmc - storedEmc, toAccept)
+            var toAdd = min(maxEmc - storedEmc, toAccept)
 
             return if ((storedEmc + toAdd) <= maxEmc) {
                 itemEmc.addEmc(inventory.getStackInSlot(0), toAdd)
@@ -390,17 +391,17 @@ open class DMPedestalTile: TileEmc, IEmcAcceptor {
                 toAdd
             }
         } else if (requiredEMC() > 0) {
-            val toAdd = Math.min(requiredEMC(), toAccept)
+            val toAdd = min(requiredEMC(), toAccept)
             currentEMC += toAdd
             return toAdd
         }
-        return 0.0
+        return 0
     }
 
     companion object {
 
         fun DMPedestalTile(): DMPedestalTile {
-            return DMPedestalTile(4, ProjectBConfig.tweaks.DMPedestalMax)
+            return DMPedestalTile(4, ProjectBConfig.tweaks.DMPedestalMax.toLong())
         }
     }
 }

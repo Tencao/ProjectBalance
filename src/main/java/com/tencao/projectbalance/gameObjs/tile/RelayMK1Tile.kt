@@ -29,32 +29,43 @@ import net.minecraft.util.EnumFacing
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
-import net.minecraftforge.items.ItemStackHandler
+import kotlin.math.min
 
-open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private val chargeRate: Int) : TileEmc(maxEmc), IEmcAcceptor, IEmcProvider {
-    private val input: ItemStackHandler
-    private val output = this.StackHandler(1)
-    private val automationInput: IItemHandler
-    private val automationOutput = object : WrappedItemHandler(output, WrappedItemHandler.WriteMode.IN_OUT) {
-        override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            return if (SlotPredicates.IITEMEMC.test(stack))
-                super.insertItem(slot, stack, simulate)
-            else
-                stack
+open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Long, private val chargeRate: Long) : TileEmc(maxEmc), IEmcAcceptor, IEmcProvider {
+    private val input by lazy {
+        object : TileEmc.StackHandler(sizeInv) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.RELAY_INV.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
+            }
         }
-
-        override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
-            val stack = getStackInSlot(slot)
-            if (!stack.isEmpty && stack.item is IItemEmc) {
-                val item = stack.item as IItemEmc
-                return if (item.getStoredEmc(stack) >= item.getMaximumEmc(stack)) {
-                    super.extractItem(slot, amount, simulate)
-                } else {
-                    ItemStack.EMPTY
-                }
+    }
+    private val output by lazy { this.StackHandler(1) }
+    private val automationInput by lazy { WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN) }
+    private val automationOutput by lazy {
+        object : WrappedItemHandler(output, WriteMode.IN_OUT) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.IITEMEMC.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
             }
 
-            return super.extractItem(slot, amount, simulate)
+            override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
+                val stack = getStackInSlot(slot)
+                if (!stack.isEmpty && stack.item is IItemEmc) {
+                    val item = stack.item as IItemEmc
+                    return if (item.getStoredEmc(stack) >= item.getMaximumEmc(stack)) {
+                        super.extractItem(slot, amount, simulate)
+                    } else {
+                        ItemStack.EMPTY
+                    }
+                }
+
+                return super.extractItem(slot, amount, simulate)
+            }
         }
     }
 
@@ -66,7 +77,7 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
 
     val itemChargeProportion: Double
         get() = if (!charging.isEmpty && charging.item is IItemEmc) {
-            (charging.item as IItemEmc).getStoredEmc(charging) / (charging.item as IItemEmc).getMaximumEmc(charging)
+            (charging.item as IItemEmc).getStoredEmc(charging).toDouble() / (charging.item as IItemEmc).getMaximumEmc(charging)
         } else 0.0
 
     val inputBurnProportion: Double
@@ -76,24 +87,12 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
             }
 
             return if (burn.item is IItemEmc) {
-                (burn.item as IItemEmc).getStoredEmc(burn) / (burn.item as IItemEmc).getMaximumEmc(burn)
+                (burn.item as IItemEmc).getStoredEmc(burn).toDouble() / (burn.item as IItemEmc).getMaximumEmc(burn)
             } else burn.count / burn.maxStackSize.toDouble()
 
         }
 
     constructor() : this(7, Constants.RELAY_MK1_MAX, Constants.RELAY_MK1_OUTPUT)
-
-    init {
-        input = object : TileEmc.StackHandler(sizeInv) {
-            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-                return if (SlotPredicates.RELAY_INV.test(stack))
-                    super.insertItem(slot, stack, simulate)
-                else
-                    stack
-            }
-        }
-        automationInput = WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN)
-    }
 
     override fun hasCapability(cap: Capability<*>, side: EnumFacing?): Boolean {
         return cap === CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(cap, side)
@@ -132,7 +131,7 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
                 var emcVal = itemEmc.getStoredEmc(stack)
 
                 if (emcVal > chargeRate) {
-                    emcVal = chargeRate.toDouble()
+                    emcVal = chargeRate
                 }
 
                 if (emcVal > 0 && this.storedEmc + emcVal <= this.maximumEmc) {
@@ -143,7 +142,7 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
                 val emcVal = EMCHelper.getEmcSellValue(stack)
 
                 if (emcVal > 0 && this.storedEmc + emcVal <= this.maximumEmc) {
-                    this.addEMC(emcVal.toDouble())
+                    this.addEMC(emcVal)
                     burn.shrink(1)
                 }
             }
@@ -157,20 +156,16 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
     }
 
     private fun sendEmc() {
-        if (this.storedEmc == 0.0) return
+        if (this.storedEmc == 0L) return
 
-        if (this.storedEmc <= chargeRate) {
-            this.sendToAllAcceptors(this.storedEmc)
-        } else {
-            this.sendToAllAcceptors(chargeRate.toDouble())
-        }
+        this.sendToAllAcceptors(min(storedEmc, chargeRate))
     }
 
     private fun chargeItem(chargeable: ItemStack) {
         val itemEmc = chargeable.item as IItemEmc
         val starEmc = itemEmc.getStoredEmc(chargeable)
         val maxStarEmc = itemEmc.getMaximumEmc(chargeable)
-        var toSend: Double = if (this.storedEmc < chargeRate) this.storedEmc else chargeRate.toDouble()
+        var toSend: Long = min(this.storedEmc, chargeRate)
 
         if (starEmc + toSend <= maxStarEmc) {
             itemEmc.addEmc(chargeable, toSend)
@@ -196,18 +191,18 @@ open class RelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private 
         return nbt
     }
 
-    override fun acceptEMC(side: EnumFacing, toAccept: Double): Double {
+    override fun acceptEMC(side: EnumFacing, toAccept: Long): Long {
         return if (world.getTileEntity(pos.offset(side)) is RelayMK1Tile) {
-            0.0 // Do not accept from other relays - avoid infinite loop / thrashing
+            0L // Do not accept from other relays - avoid infinite loop / thrashing
         } else {
-            val toAdd = Math.min(maximumEMC - currentEMC, toAccept)
+            val toAdd = min(maximumEMC - currentEMC, toAccept)
             currentEMC += toAdd
             toAdd
         }
     }
 
-    override fun provideEMC(side: EnumFacing, toExtract: Double): Double {
-        val toRemove = Math.min(currentEMC, toExtract)
+    override fun provideEMC(side: EnumFacing, toExtract: Long): Long {
+        val toRemove = min(currentEMC, toExtract)
         currentEMC -= toRemove
         return toRemove
     }

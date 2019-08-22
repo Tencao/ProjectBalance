@@ -39,41 +39,62 @@ import net.minecraftforge.items.ItemHandlerHelper
 import net.minecraftforge.items.wrapper.CombinedInvWrapper
 import net.minecraftforge.items.wrapper.InvWrapper
 import net.minecraftforge.items.wrapper.SidedInvWrapper
+import kotlin.math.min
 
-open class DMFurnaceTile(val ticksBeforeSmelt: Int, val efficiencyBonus: Int): TileEmc(64), IEmcAcceptor {
+open class DMFurnaceTile: TileEmc, IEmcAcceptor {
 
-    private val EMC_CONSUMPTION = 16f
-    internal val inputInventory = StackHandler(getInvSize())
-    internal val outputInventory = StackHandler(getInvSize())
-    internal val fuelInv = StackHandler(1)
-    private val automationInput = object : WrappedItemHandler(inputInventory, WrappedItemHandler.WriteMode.IN) {
-        override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            return if (SlotPredicates.SMELTABLE.test(stack))
-                super.insertItem(slot, stack, simulate)
-            else
-                stack
+    private val ticksBeforeSmelt: Int
+    val efficiencyBonus: Int
+    open val invSize = 9
+    private val EMC_CONSUMPTION = 16L
+    internal val inputInventory by lazy {
+        StackHandler(invSize)
+    }
+    internal val outputInventory by lazy {
+        StackHandler(invSize)
+    }
+    internal val fuelInv by lazy {
+        StackHandler(1)
+    }
+    private val automationInput by lazy {
+        object : WrappedItemHandler(inputInventory, WriteMode.IN) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.SMELTABLE.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
+            }
         }
     }
-    private val automationFuel = object : WrappedItemHandler(fuelInv, WrappedItemHandler.WriteMode.IN) {
-        override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            return if (SlotPredicates.FURNACE_FUEL.test(stack))
-                super.insertItem(slot, stack, simulate)
-            else
-                stack
+    private val automationFuel by lazy {
+        object : WrappedItemHandler(fuelInv, WriteMode.IN) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.FURNACE_FUEL.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
+            }
         }
     }
 
-    private val automationOutput = WrappedItemHandler(outputInventory, WrappedItemHandler.WriteMode.OUT)
-    private val automationSides = CombinedInvWrapper(automationFuel, automationOutput)
-    private val joined = CombinedInvWrapper(automationInput, automationFuel, automationOutput)
+    private val automationOutput by lazy {
+        WrappedItemHandler(outputInventory, WrappedItemHandler.WriteMode.OUT)
+    }
+    private val automationSides by lazy {
+        CombinedInvWrapper(automationFuel, automationOutput)
+    }
+    private val joined by lazy {
+        CombinedInvWrapper(automationInput, automationFuel, automationOutput)
+    }
     var furnaceBurnTime: Int = 0
     var currentItemBurnTime: Int = 0
     var furnaceCookTime: Int = 0
 
     constructor(): this(10, 3)
 
-    open fun getInvSize(): Int {
-        return 9
+    constructor(ticksBeforeSmelt: Int, efficiencyBonus: Int): super(64){
+        this.ticksBeforeSmelt = ticksBeforeSmelt
+        this.efficiencyBonus = efficiencyBonus
     }
 
     open fun getOreDoubleChance(): Float {
@@ -97,7 +118,7 @@ open class DMFurnaceTile(val ticksBeforeSmelt: Int, val efficiencyBonus: Int): T
     }
 
     override fun hasCapability(cap: Capability<*>, side: EnumFacing?): Boolean {
-        return cap === net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(cap, side)
+        return cap === CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(cap, side)
     }
 
     override fun <T> getCapability(cap: Capability<T>, side: EnumFacing?): T? {
@@ -130,13 +151,13 @@ open class DMFurnaceTile(val ticksBeforeSmelt: Int, val efficiencyBonus: Int): T
                 val itemEmc = getFuelItem().item as IItemEmc
                 if (itemEmc.getStoredEmc(getFuelItem()) >= EMC_CONSUMPTION) {
                     itemEmc.extractEmc(getFuelItem(), EMC_CONSUMPTION.toDouble())
-                    this.addEMC(EMC_CONSUMPTION.toDouble())
+                    this.addEMC(EMC_CONSUMPTION)
                 }
             }
 
             if (this.storedEmc >= EMC_CONSUMPTION) {
                 furnaceBurnTime = 1
-                this.removeEMC(EMC_CONSUMPTION.toDouble())
+                this.removeEMC(EMC_CONSUMPTION)
             }
 
             if (furnaceBurnTime == 0 && canSmelt()) {
@@ -305,14 +326,14 @@ open class DMFurnaceTile(val ticksBeforeSmelt: Int, val efficiencyBonus: Int): T
         return nbt
     }
 
-    override fun acceptEMC(side: EnumFacing, toAccept: Double): Double {
+    override fun acceptEMC(side: EnumFacing, toAccept: Long): Long {
         if (this.storedEmc < EMC_CONSUMPTION) {
             val needed = EMC_CONSUMPTION - this.storedEmc
-            val accept = Math.min(needed, toAccept)
+            val accept = min(needed, toAccept)
             this.addEMC(accept)
             return accept
         }
-        return 0.0
+        return 0
     }
 
 }

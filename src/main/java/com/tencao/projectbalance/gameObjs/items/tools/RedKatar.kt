@@ -39,12 +39,12 @@ class RedKatar : ItemTool, IItemMode, IExtraFunction {
 
     constructor() : this("rm_katar", PEToolBase.redMatter, 23F, 4, arrayOf("pe.katar.mode1", "pe.katar.mode2"))
 
-    constructor(name: String, material: Item.ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(damage, -2.4F, material, mutableSetOf()){
+    constructor(name: String, material: ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(damage, -2.4F, material, mutableSetOf()){
         this.numCharges = numCharges
         this.modes = modeDesc
         this.numModes = modeDesc.size.toByte()
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
         this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
         this.damage = damage

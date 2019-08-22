@@ -27,7 +27,7 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 
 class PowerFlowerRenderer(tier: Int) : TileEntitySpecialRenderer<PowerFlowerMK1Tile>() {
-    private val model = ModelChest()
+    private val model by lazy { ModelChest() }
     private val texture: ResourceLocation = when (tier) {
         2 -> {
             ResourceLocation(PECore.MODID.toLowerCase(), "textures/blocks/powerflower/powerflower_mk2.png")
@@ -66,6 +66,7 @@ class PowerFlowerRenderer(tier: Int) : TileEntitySpecialRenderer<PowerFlowerMK1T
                 EnumFacing.SOUTH -> angle = 0
                 EnumFacing.WEST -> angle = 90
                 EnumFacing.EAST -> angle = -90
+                else -> angle = 0
             }
         }
 

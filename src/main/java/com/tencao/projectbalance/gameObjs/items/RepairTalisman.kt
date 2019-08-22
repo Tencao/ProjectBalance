@@ -71,7 +71,7 @@ class RepairTalisman: RepairTalisman() {
             }
 
             if (ItemHelper.isDamageable(invStack) && invStack.itemDamage > 0) {
-                if (ItemPE.consumeFuel(player, invStack, EMCHelper.getEMCPerDurability(invStack).toDouble(), true))
+                if (ItemPE.consumeFuel(player, invStack, EMCHelper.getEMCPerDurability(invStack), true))
                     invStack.itemDamage = invStack.itemDamage - 1
             }
         }
@@ -79,12 +79,12 @@ class RepairTalisman: RepairTalisman() {
         if (Loader.isModLoaded("baubles")) baubleRepair(player)
     }
 
-    private fun getRepairCost(player: EntityPlayer): Double {
+    private fun getRepairCost(player: EntityPlayer): Long {
         return getRepairCost(player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)!!)
     }
 
-    private fun getRepairCost(inv: IItemHandler): Double {
-        var emcCost = 0.0
+    private fun getRepairCost(inv: IItemHandler): Long {
+        var emcCost = 0L
 
         for (i in 0 until inv.slots) {
             val invStack = inv.getStackInSlot(i)
@@ -94,7 +94,7 @@ class RepairTalisman: RepairTalisman() {
             }
 
             if (ItemHelper.isItemRepairable(invStack)) {
-                emcCost += EMCHelper.getEMCPerDurability(invStack).toDouble()
+                emcCost += EMCHelper.getEMCPerDurability(invStack)
             }
         }
 
@@ -112,7 +112,7 @@ class RepairTalisman: RepairTalisman() {
             }
 
             if (ItemHelper.isDamageable(bInvStack) && bInvStack.itemDamage > 0) {
-                if (ItemPE.consumeFuel(player, bInvStack, EMCHelper.getEMCPerDurability(bInvStack).toDouble(), true))
+                if (ItemPE.consumeFuel(player, bInvStack, EMCHelper.getEMCPerDurability(bInvStack), true))
                     bInvStack.itemDamage = bInvStack.itemDamage - 1
             }
         }
@@ -152,7 +152,7 @@ class RepairTalisman: RepairTalisman() {
                 }
 
                 if (ItemHelper.isDamageable(invStack) && invStack.itemDamage > 0) {
-                    if (consumeFuel(inv, invStack, EMCHelper.getEMCPerDurability(invStack).toDouble(), true)) {
+                    if (consumeFuel(inv, invStack, EMCHelper.getEMCPerDurability(invStack), true)) {
                         invStack.itemDamage = invStack.itemDamage - 1
 
                         if (!hasAction) {
@@ -189,7 +189,7 @@ class RepairTalisman: RepairTalisman() {
                 }
 
                 if (ItemHelper.isDamageable(invStack) && invStack.itemDamage > 0) {
-                    if (consumeFuel(inv, invStack, EMCHelper.getEMCPerDurability(invStack).toDouble(), true) || ItemPE.consumeFuel(player, invStack, EMCHelper.getEMCPerDurability(invStack).toDouble(), true)) {
+                    if (consumeFuel(inv, invStack, EMCHelper.getEMCPerDurability(invStack), true) || ItemPE.consumeFuel(player, invStack, EMCHelper.getEMCPerDurability(invStack), true)) {
                         invStack.itemDamage = invStack.itemDamage - 1
 
                         if (!hasAction) {
@@ -207,7 +207,7 @@ class RepairTalisman: RepairTalisman() {
         return false
     }
 
-    fun consumeFuel(inv: IItemHandler, stack: ItemStack, amount: Double, shouldRemove: Boolean): Boolean {
+    fun consumeFuel(inv: IItemHandler, stack: ItemStack, amount: Long, shouldRemove: Boolean): Boolean {
         if (amount <= 0) {
             return true
         }
@@ -217,7 +217,7 @@ class RepairTalisman: RepairTalisman() {
         if (current < amount) {
             val consume = com.tencao.projectbalance.utils.EMCHelper.consumeInvFuel(inv, amount - current)
 
-            if (consume == -1.0) {
+            if (consume == -1L) {
                 return false
             }
 

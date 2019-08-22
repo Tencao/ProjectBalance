@@ -27,12 +27,12 @@ open class DarkSword : ItemSword, IItemMode, IExtraFunction {
 
     constructor() : this("dm_sword", PEToolBase.darkMatter, 12F, 2, emptyArray())
 
-    constructor(name: String, material: Item.ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(material){
+    constructor(name: String, material: ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(material){
         this.numCharges = numCharges
         this.modes = modeDesc
         this.numModes = modeDesc.size.toByte()
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
         this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
         this.damage = damage

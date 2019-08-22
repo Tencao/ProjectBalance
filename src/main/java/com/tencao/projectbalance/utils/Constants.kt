@@ -25,39 +25,39 @@ object Constants {
 
     val COLLECTOR_LIGHT_VALS = floatArrayOf(0.4375f, 0.6875f, 1.0f, 1.0f)
 
-    val COLLECTOR_MK1_MAX = ProjectBConfig.tweaks.CollectorMaxMK1
-    val COLLECTOR_MK2_MAX = ProjectBConfig.tweaks.CollectorMaxMK2
-    val COLLECTOR_MK3_MAX = ProjectBConfig.tweaks.CollectorMaxMK3
-    val COLLECTOR_MK4_MAX = ProjectBConfig.tweaks.CollectorMaxMK4
-    val COLLECTOR_MK1_GEN = ProjectBConfig.tweaks.CollectorRateMK1.toFloat()
-    val COLLECTOR_MK2_GEN = ProjectBConfig.tweaks.CollectorRateMK2.toFloat()
-    val COLLECTOR_MK3_GEN = ProjectBConfig.tweaks.CollectorRateMK3.toFloat()
-    val COLLECTOR_MK4_GEN = ProjectBConfig.tweaks.CollectorRateMK4.toFloat()
+    val COLLECTOR_MK1_MAX = ProjectBConfig.tweaks.CollectorMaxMK1.toLong()
+    val COLLECTOR_MK2_MAX = ProjectBConfig.tweaks.CollectorMaxMK2.toLong()
+    val COLLECTOR_MK3_MAX = ProjectBConfig.tweaks.CollectorMaxMK3.toLong()
+    val COLLECTOR_MK4_MAX = ProjectBConfig.tweaks.CollectorMaxMK4.toLong()
+    val COLLECTOR_MK1_GEN = ProjectBConfig.tweaks.CollectorRateMK1
+    val COLLECTOR_MK2_GEN = ProjectBConfig.tweaks.CollectorRateMK2
+    val COLLECTOR_MK3_GEN = ProjectBConfig.tweaks.CollectorRateMK3
+    val COLLECTOR_MK4_GEN = ProjectBConfig.tweaks.CollectorRateMK4
 
-    val RELAY_MK1_OUTPUT = ProjectBConfig.tweaks.TransferRateMK1
-    val RELAY_MK2_OUTPUT = ProjectBConfig.tweaks.TransferRateMK2
-    val RELAY_MK3_OUTPUT = ProjectBConfig.tweaks.TransferRateMK3
-    val RELAY_MK4_OUTPUT = ProjectBConfig.tweaks.TransferRateMK4
+    val RELAY_MK1_OUTPUT = ProjectBConfig.tweaks.TransferRateMK1.toLong()
+    val RELAY_MK2_OUTPUT = ProjectBConfig.tweaks.TransferRateMK2.toLong()
+    val RELAY_MK3_OUTPUT = ProjectBConfig.tweaks.TransferRateMK3.toLong()
+    val RELAY_MK4_OUTPUT = ProjectBConfig.tweaks.TransferRateMK4.toLong()
 
-    val RELAY_MK1_MAX = ProjectBConfig.tweaks.RelayMaxMK1
-    val RELAY_MK2_MAX = ProjectBConfig.tweaks.RelayMaxMK2
-    val RELAY_MK3_MAX = ProjectBConfig.tweaks.RelayMaxMK3
-    val RELAY_MK4_MAX = ProjectBConfig.tweaks.RelayMaxMK4
+    val RELAY_MK1_MAX = ProjectBConfig.tweaks.RelayMaxMK1.toLong()
+    val RELAY_MK2_MAX = ProjectBConfig.tweaks.RelayMaxMK2.toLong()
+    val RELAY_MK3_MAX = ProjectBConfig.tweaks.RelayMaxMK3.toLong()
+    val RELAY_MK4_MAX = ProjectBConfig.tweaks.RelayMaxMK4.toLong()
 
     val RELAY_MK1_BONUS = ProjectBConfig.tweaks.RelayBonusMK1.toFloat() / 20
     val RELAY_MK2_BONUS = ProjectBConfig.tweaks.RelayBonusMK2.toFloat() / 20
     val RELAY_MK3_BONUS = ProjectBConfig.tweaks.RelayBonusMK3.toFloat() / 20
     val RELAY_MK4_BONUS = ProjectBConfig.tweaks.RelayBonusMK4.toFloat() / 20
 
-    val CONDENSED_RELAY_MK1_OUTPUT = ProjectBConfig.tweaks.TransferRateMK1 * 6
-    val CONDENSED_RELAY_MK2_OUTPUT = ProjectBConfig.tweaks.TransferRateMK2 * 6
-    val CONDENSED_RELAY_MK3_OUTPUT = ProjectBConfig.tweaks.TransferRateMK3 * 6
-    val CONDENSED_RELAY_MK4_OUTPUT = ProjectBConfig.tweaks.TransferRateMK4 * 6
+    val CONDENSED_RELAY_MK1_OUTPUT = ProjectBConfig.tweaks.TransferRateMK1.toLong() * 6
+    val CONDENSED_RELAY_MK2_OUTPUT = ProjectBConfig.tweaks.TransferRateMK2.toLong() * 6
+    val CONDENSED_RELAY_MK3_OUTPUT = ProjectBConfig.tweaks.TransferRateMK3.toLong() * 6
+    val CONDENSED_RELAY_MK4_OUTPUT = ProjectBConfig.tweaks.TransferRateMK4.toLong() * 6
 
-    val CONDENSED_RELAY_MK1_MAX = ProjectBConfig.tweaks.RelayMaxMK1 + ProjectBConfig.tweaks.CollectorMaxMK1 * 5
-    val CONDENSED_RELAY_MK2_MAX = ProjectBConfig.tweaks.RelayMaxMK2 + ProjectBConfig.tweaks.CollectorMaxMK2 * 5
-    val CONDENSED_RELAY_MK3_MAX = ProjectBConfig.tweaks.RelayMaxMK3 + ProjectBConfig.tweaks.CollectorMaxMK3 * 5
-    val CONDENSED_RELAY_MK4_MAX = ProjectBConfig.tweaks.RelayMaxMK4 + ProjectBConfig.tweaks.CollectorMaxMK4 * 5
+    val CONDENSED_RELAY_MK1_MAX = ProjectBConfig.tweaks.RelayMaxMK1.toLong() + ProjectBConfig.tweaks.CollectorMaxMK1.toLong() * 5
+    val CONDENSED_RELAY_MK2_MAX = ProjectBConfig.tweaks.RelayMaxMK2.toLong() + ProjectBConfig.tweaks.CollectorMaxMK2.toLong() * 5
+    val CONDENSED_RELAY_MK3_MAX = ProjectBConfig.tweaks.RelayMaxMK3.toLong() + ProjectBConfig.tweaks.CollectorMaxMK3.toLong() * 5
+    val CONDENSED_RELAY_MK4_MAX = ProjectBConfig.tweaks.RelayMaxMK4.toLong() + ProjectBConfig.tweaks.CollectorMaxMK4.toLong() * 5
 
     val CONDENSED_RELAY_MK1_GEN = COLLECTOR_MK1_GEN * 5 + RELAY_MK1_BONUS * 5
     val CONDENSED_RELAY_MK2_GEN = COLLECTOR_MK2_GEN * 5 + RELAY_MK2_BONUS * 5

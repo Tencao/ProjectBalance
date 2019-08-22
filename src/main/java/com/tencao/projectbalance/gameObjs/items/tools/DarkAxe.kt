@@ -23,7 +23,7 @@ open class DarkAxe : ItemAxe, IItemMode {
     constructor(name: String, material: ToolMaterial, damage: Float, numCharges: Int): super(material, damage, -3.0F){
         this.numCharges = numCharges
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
         this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
         this.attackDamage = damage + material.attackDamage

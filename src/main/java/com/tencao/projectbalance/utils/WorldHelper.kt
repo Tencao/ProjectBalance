@@ -59,7 +59,7 @@ object WorldHelper {
                         times++
                     }
                 } else if (world.rand.nextInt(chance) == 0) {
-                    if (ProjectEConfig.items.harvBandGrass || !crop.unlocalizedName.toLowerCase(Locale.ROOT).contains("grass")) {
+                    if (ProjectEConfig.items.harvBandGrass || !crop.translationKey.toLowerCase(Locale.ROOT).contains("grass")) {
                         times++
                     }
                 }
@@ -139,7 +139,7 @@ object WorldHelper {
                         world.destroyBlock(currentPos, true)
                     }
                 } else if (world.rand.nextInt(chance) == 0) {
-                    if (ProjectEConfig.items.harvBandGrass || !crop.unlocalizedName.toLowerCase(Locale.ROOT).contains("grass")) {
+                    if (ProjectEConfig.items.harvBandGrass || !crop.translationKey.toLowerCase(Locale.ROOT).contains("grass")) {
                         growable.grow(world, world.rand, currentPos, state)
                     }
                 }

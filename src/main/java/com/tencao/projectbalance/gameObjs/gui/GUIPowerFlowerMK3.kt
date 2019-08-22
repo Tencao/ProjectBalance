@@ -29,6 +29,7 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
+import kotlin.math.min
 
 class GUIPowerFlowerMK3(invPlayer: InventoryPlayer, tile: PowerFlowerMK3Tile) : GuiContainer(PowerFlowerMK2Container(invPlayer, tile)), ICraftingGUI {
     private val container: PowerFlowerMK2Container = inventorySlots as PowerFlowerMK2Container
@@ -68,9 +69,7 @@ class GUIPowerFlowerMK3(invPlayer: InventoryPlayer, tile: PowerFlowerMK3Tile) : 
             this.fontRenderer.drawString(Constants.EMC_FORMATTER.format(container.displayEmc), 140, 10, 4210752)
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
             val totalSeconds = if (container.tomes > 0){
-                val factor = Math.min(
-                        ((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(),
-                        container.tomes * 2) + 1
+                val factor = min(((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(), container.tomes * 2) + 1
                 (container.requiredTime - container.timePassed) / (factor * 20)
             } else (container.requiredTime - container.timePassed) / 20
             val totalMinutes = (totalSeconds % 3600) / 60

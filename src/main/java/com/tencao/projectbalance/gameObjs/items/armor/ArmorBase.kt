@@ -23,10 +23,11 @@ import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.World
+import kotlin.math.min
 
-abstract class ArmorBase(material: ItemArmor.ArmorMaterial, renderindex: Int, armorPiece: EntityEquipmentSlot, private val maximumEMC: Double) : ItemArmor(material, renderindex, armorPiece), IItemEmc {
+abstract class ArmorBase(material: ArmorMaterial, renderindex: Int, armorPiece: EntityEquipmentSlot, private val maximumEMC: Long) : ItemArmor(material, renderindex, armorPiece), IItemEmc {
 
-    private val currentEMC: Double = 0.0
+    private val currentEMC: Long = 0
 
     override fun onUpdate(stack: ItemStack?, world: World?, entity: Entity?, par4: Int, par5: Boolean) {
         if (!stack!!.hasTagCompound()) {
@@ -39,36 +40,36 @@ abstract class ArmorBase(material: ItemArmor.ArmorMaterial, renderindex: Int, ar
     }
 
     override fun getDurabilityForDisplay(stack: ItemStack): Double {
-        return if (getStoredEmc(stack) == 0.0) {
+        return if (getStoredEmc(stack) == 0L) {
             1.0
         } else 1.0 - getStoredEmc(stack) / getMaximumEmc(stack)
 
     }
 
-    override fun addEmc(stack: ItemStack, toAdd: Double): Double {
-        val add = Math.min(getMaximumEmc(stack) - getStoredEmc(stack), toAdd)
+    override fun getStoredEmc(stack: ItemStack): Long {
+        return getEmc(stack)
+    }
+
+    override fun getMaximumEmc(stack: ItemStack): Long {
+        return maximumEMC
+    }
+
+    override fun addEmc(stack: ItemStack, toAdd: Long): Long {
+        val add = min(getMaximumEmc(stack) - getStoredEmc(stack), toAdd)
         setEmc(stack, getEmc(stack) + add)
         return add
     }
 
-    override fun extractEmc(stack: ItemStack, toRemove: Double): Double {
-        val sub = Math.min(getStoredEmc(stack), toRemove)
+    override fun extractEmc(stack: ItemStack, toRemove: Long): Long {
+        val sub = min(getStoredEmc(stack), toRemove)
         removeEmc(stack, sub)
         return sub
     }
 
-    override fun getStoredEmc(stack: ItemStack): Double {
-        return getEmc(stack)
-    }
-
-    override fun getMaximumEmc(stack: ItemStack): Double {
-        return maximumEMC
-    }
-
-    fun acceptEMC(stack: ItemStack, toAccept: Double): Double {
+    fun acceptEMC(stack: ItemStack, toAccept: Long): Long {
         val storedEmc = getStoredEmc(stack)
         val maxEmc = getMaximumEmc(stack)
-        var toAdd = Math.min(maxEmc - storedEmc, toAccept)
+        var toAdd = min(maxEmc - storedEmc, toAccept)
 
         return if (storedEmc + toAdd <= maxEmc) {
             addEmc(stack, toAdd)
@@ -87,27 +88,27 @@ abstract class ArmorBase(material: ItemArmor.ArmorMaterial, renderindex: Int, ar
 
     companion object {
 
-        private fun getEmc(stack: ItemStack): Double {
+        private fun getEmc(stack: ItemStack): Long {
             if (stack.tagCompound == null) {
                 stack.tagCompound = NBTTagCompound()
             }
 
-            return stack.tagCompound!!.getDouble("StoredEMC")
+            return stack.tagCompound!!.getLong("StoredEMC")
         }
 
-        private fun setEmc(stack: ItemStack, amount: Double) {
+        private fun setEmc(stack: ItemStack, amount: Long) {
             if (stack.tagCompound == null) {
                 stack.tagCompound = NBTTagCompound()
             }
 
-            stack.tagCompound!!.setDouble("StoredEMC", amount)
+            stack.tagCompound!!.setLong("StoredEMC", amount)
         }
 
-        fun removeEmc(stack: ItemStack, amount: Double) {
+        fun removeEmc(stack: ItemStack, amount: Long) {
             var result = getEmc(stack) - amount
 
             if (result < 0) {
-                result = 0.0
+                result = 0
             }
 
             setEmc(stack, result)

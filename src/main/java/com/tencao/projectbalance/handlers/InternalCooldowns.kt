@@ -36,7 +36,6 @@ import net.minecraft.nbt.NBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.MathHelper
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityInject
 import net.minecraftforge.fml.relauncher.Side
@@ -91,14 +90,14 @@ class InternalCooldowns: AbstractEntityCapability() {
             val player = (reference.get() as EntityPlayer)
             if (!this.stack.isEmpty){
                 val provider = player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY, null)!!
-                provider.emc = provider.emc + LongMath.checkedMultiply(EMCHelper.getEmcSellValue(this.stack), this.stack.count.toLong()).toDouble()
+                provider.emc = provider.emc + LongMath.checkedMultiply(EMCHelper.getEmcSellValue(this.stack), this.stack.count.toLong())
 
                 if (provider.emc >= Constants.TILE_MAX_EMC || provider.emc < 0) {
-                    provider.emc = Constants.TILE_MAX_EMC.toDouble()
+                    provider.emc = Constants.TILE_MAX_EMC
                 }
 
                 if (!player.entityWorld.isRemote) {
-                    PlayerHelper.updateScore(player as EntityPlayerMP, PlayerHelper.SCOREBOARD_EMC, MathHelper.floor(provider.emc))
+                    PlayerHelper.updateScore(player as EntityPlayerMP, PlayerHelper.SCOREBOARD_EMC, provider.emc.toInt())
                 }
             }
             this.stack = stack

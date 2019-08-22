@@ -34,6 +34,7 @@ import net.minecraftforge.common.util.EnumHelper
 import net.minecraftforge.event.entity.player.UseHoeEvent
 import net.minecraftforge.oredict.OreDictionary
 import java.util.*
+import kotlin.math.pow
 
 object PEToolBase {
 
@@ -271,7 +272,7 @@ object PEToolBase {
         WorldHelper.createLootDrop(drops, world, mop.blockPos)
         PlayerHelper.swingItem(player, hand)
 
-        if (!drops.isEmpty()) {
+        if (drops.isNotEmpty()) {
             player.entityWorld.playSound(null, player.posX, player.posY, player.posZ, PESounds.DESTRUCT, SoundCategory.PLAYERS, 1.0f, 1.0f)
         }
     }
@@ -361,7 +362,7 @@ object PEToolBase {
         val tool = stack.item as IItemMode
         val charge = tool.getCharge(stack)
 
-        val offset = Math.pow(2.0, (2 + charge).toDouble()).toInt()
+        val offset = 2.0.pow((2 + charge).toDouble()).toInt()
 
         val bBox = player.entityBoundingBox.grow(offset.toDouble(), (offset / 2).toDouble(), offset.toDouble())
         val list = player.world.getEntitiesWithinAABB(Entity::class.java, bBox)
@@ -378,7 +379,7 @@ object PEToolBase {
             if (target.isShearable(stack, ent.world, BlockPos(ent))) {
                 val entDrops = target.onSheared(stack, ent.world, BlockPos(ent), EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, stack))
 
-                if (!entDrops.isEmpty() && player.foodStats.foodLevel > 0) {
+                if (entDrops.isNotEmpty() && player.foodStats.foodLevel > 0) {
                     for (drop in entDrops) {
                         drop.grow(drop.count)
                     }
@@ -439,7 +440,7 @@ object PEToolBase {
         }
 
         WorldHelper.createLootDrop(drops, player.world, mop.blockPos)
-        if (!drops.isEmpty()) {
+        if (drops.isNotEmpty()) {
             player.world.playSound(null, player.posX, player.posY, player.posZ, PESounds.DESTRUCT, SoundCategory.PLAYERS, 1.0f, 1.0f)
         }
     }
@@ -468,13 +469,13 @@ object PEToolBase {
             }
         }
 
-        if (!drops.isEmpty()) {
+        if (drops.isNotEmpty()) {
             WorldHelper.createLootDrop(drops, world, player.posX, player.posY, player.posZ)
             PlayerHelper.swingItem(player, hand)
         }
     }
 
-    fun rayTrace(worldIn: World, playerIn: EntityPlayer, useLiquids: Boolean): RayTraceResult? {
+    private fun rayTrace(worldIn: World, playerIn: EntityPlayer, useLiquids: Boolean): RayTraceResult? {
         val f = playerIn.rotationPitch
         val f1 = playerIn.rotationYaw
         val d0 = playerIn.posX
@@ -488,7 +489,7 @@ object PEToolBase {
         val f6 = f3 * f4
         val f7 = f2 * f4
         val d3 = playerIn.getEntityAttribute(EntityPlayer.REACH_DISTANCE).attributeValue
-        val vec3d1 = vec3d.addVector(f6.toDouble() * d3, f5.toDouble() * d3, f7.toDouble() * d3)
+        val vec3d1 = vec3d.add(f6.toDouble() * d3, f5.toDouble() * d3, f7.toDouble() * d3)
         return worldIn.rayTraceBlocks(vec3d, vec3d1, useLiquids, !useLiquids, false)
     }
 

@@ -26,7 +26,7 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper
 
 class CondenserMK2Tile : CondenserTile() {
     override fun createAutomationInventory(): IItemHandler {
-        val automationInput = object : WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN) {
+        val automationInput = object : WrappedItemHandler(input, WriteMode.IN) {
             override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
                 return if (SlotPredicates.HAS_EMC.test(stack) && !isStackEqualToLock(stack))
                     super.insertItem(slot, stack, simulate)
@@ -55,7 +55,7 @@ class CondenserMK2Tile : CondenserTile() {
                     continue
                 }
 
-                this.addEMC((EMCHelper.getEmcSellValue(stack) * stack.count).toDouble())
+                this.addEMC(EMCHelper.getEmcSellValue(stack) * stack.count)
                 input.setStackInSlot(i, ItemStack.EMPTY)
                 break
             }

@@ -40,7 +40,7 @@ import net.minecraftforge.items.CapabilityItemHandler
 class Collector(private val tier: Int) : BlockDirection(Material.GLASS) {
 
     init {
-        this.unlocalizedName = "pe_collector_MK$tier"
+        this.translationKey = "pe_collector_MK$tier"
         this.setLightLevel(Constants.COLLECTOR_LIGHT_VALS[tier - 1])
         this.setHardness(0.3f)
     }

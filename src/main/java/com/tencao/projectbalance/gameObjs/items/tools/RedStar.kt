@@ -34,14 +34,14 @@ class RedStar : ItemTool, IItemMode {
 
     constructor() : this("rm_morning_star", PEToolBase.redMatter, 23F, 4, arrayOf("pe.morningstar.mode1", "pe.morningstar.mode2", "pe.morningstar.mode3", "pe.morningstar.mode4"))
 
-    constructor(name: String, material: Item.ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(damage, -3.0F, material, mutableSetOf()){
+    constructor(name: String, material: ToolMaterial, damage: Float, numCharges: Int, modeDesc: Array<String>): super(damage, -3.0F, material, mutableSetOf()){
         this.numCharges = numCharges
         this.modes = modeDesc
         this.numModes = modeDesc.size.toByte()
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
-        this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
+        this.creativeTab = ObjHandler.cTab
         this.damage = damage
 
     }

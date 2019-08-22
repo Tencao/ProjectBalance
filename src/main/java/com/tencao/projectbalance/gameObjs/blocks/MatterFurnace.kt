@@ -53,21 +53,21 @@ class MatterFurnace(val isActive: Boolean, val tier: Int): BlockDirection(Materi
     init {
         when(tier){
             0 -> {
-                this.unlocalizedName = "pe_dm_furnace"
+                this.translationKey = "pe_dm_furnace"
             }
             1 -> {
-                this.unlocalizedName = "pe_rm_furnace"
+                this.translationKey = "pe_rm_furnace"
             }
             2 -> {
-                this.unlocalizedName = "pe_bm_furnace"
+                this.translationKey = "pe_bm_furnace"
             }
         }
         if (isActive){
-            this.setCreativeTab(null)
+            this.creativeTab = null
             this.setLightLevel(0.875F)
         }
         else
-            this.setCreativeTab(ObjHandler.cTab)
+            this.creativeTab = ObjHandler.cTab
         this.setHardness(1000000F)
     }
 

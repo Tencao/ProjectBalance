@@ -26,8 +26,8 @@ class ItemPedestalBlock(block: Block) : ItemBlock(block) {
         this.hasSubtypes = true
     }
 
-    override fun getUnlocalizedName(stack: ItemStack?): String {
-        return when (stack!!.itemDamage) {
+    override fun getTranslationKey(stack: ItemStack): String {
+        return when (stack.itemDamage) {
             1 -> "tile.pe_rm_pedestal"
             2 -> "tile.pe_bm_pedestal"
             else -> "tile.pe_dm_pedestal"

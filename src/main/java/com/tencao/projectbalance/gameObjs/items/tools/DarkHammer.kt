@@ -28,9 +28,9 @@ open class DarkHammer : ItemPickaxe, IItemMode {
     constructor(name: String, material: ToolMaterial, damage: Float, numCharges: Int): super(material){
         this.numCharges = numCharges
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
-        this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
+        this.creativeTab = ObjHandler.cTab
         this.attackDamage = damage + material.attackDamage
         this.attackSpeed = -4.0F
     }

@@ -30,35 +30,49 @@ import net.minecraftforge.common.BiomeDictionary
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
-import net.minecraftforge.items.ItemStackHandler
+import kotlin.math.cos
+import kotlin.math.min
 
-open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int, private val chargeRate: Int, private val emcGen: Float) : TileEmc(maxEmc), IEmcProvider, IEmcGen {
-    private val input: ItemStackHandler
-    private val output = this.StackHandler(1)
-    private val automationInput: IItemHandler
-    private val automationOutput = object : WrappedItemHandler(output, WrappedItemHandler.WriteMode.IN_OUT) {
-        override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            return if (SlotPredicates.IITEMEMC.test(stack))
-                super.insertItem(slot, stack, simulate)
-            else
-                stack
-        }
-
-        override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
-            val stack = getStackInSlot(slot)
-            if (!stack.isEmpty && stack.item is IItemEmc) {
-                val item = stack.item as IItemEmc
-                return if (item.getStoredEmc(stack) >= item.getMaximumEmc(stack)) {
-                    super.extractItem(slot, amount, simulate)
-                } else {
-                    ItemStack.EMPTY
-                }
+open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Long, private val chargeRate: Long, private val emcGen: Double) : TileEmc(maxEmc), IEmcProvider, IEmcGen {
+    private val input by lazy {
+        object : TileEmc.StackHandler(sizeInv) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.RELAY_INV.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
             }
-
-            return super.extractItem(slot, amount, simulate)
         }
     }
+    private val output by lazy { this.StackHandler(1) }
+    private val automationInput by lazy { WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN) }
+    private val automationOutput by lazy {
+        object : WrappedItemHandler(output, WriteMode.IN_OUT) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.IITEMEMC.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
+            }
+
+            override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
+                val stack = getStackInSlot(slot)
+                if (!stack.isEmpty && stack.item is IItemEmc) {
+                    val item = stack.item as IItemEmc
+                    return if (item.getStoredEmc(stack) >= item.getMaximumEmc(stack)) {
+                        super.extractItem(slot, amount, simulate)
+                    } else {
+                        ItemStack.EMPTY
+                    }
+                }
+
+                return super.extractItem(slot, amount, simulate)
+            }
+        }
+    }
+    
     private var extraEMCAdded: Boolean = false
+    private var unprocessedEMC: Double = 0.0
 
     private val charging: ItemStack
         get() = output.getStackInSlot(0)
@@ -71,7 +85,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
             if (world.provider.isNether) {
                 return 0.0f
             }
-            var sunBrightness = limit(Math.cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
+            var sunBrightness = limit(cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
             if (!BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.SANDY)) {
                 sunBrightness *= 1.0f - world.getRainStrength(1.0f) * 5.0f / 16.0f
                 sunBrightness *= 1.0f - world.getThunderStrength(1.0f) * 5.0f / 16.0f
@@ -83,7 +97,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
 
     val itemChargeProportion: Double
         get() = if (!charging.isEmpty && charging.item is IItemEmc) {
-            (charging.item as IItemEmc).getStoredEmc(charging) / (charging.item as IItemEmc).getMaximumEmc(charging)
+            (charging.item as IItemEmc).getStoredEmc(charging).toDouble() / (charging.item as IItemEmc).getMaximumEmc(charging)
         } else 0.0
 
     val inputBurnProportion: Double
@@ -93,24 +107,12 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
             }
 
             return if (burn.item is IItemEmc) {
-                (burn.item as IItemEmc).getStoredEmc(burn) / (burn.item as IItemEmc).getMaximumEmc(burn)
+                (burn.item as IItemEmc).getStoredEmc(burn) / (burn.item as IItemEmc).getMaximumEmc(burn).toDouble()
             } else burn.count / burn.maxStackSize.toDouble()
 
         }
 
     constructor() : this(7, Constants.CONDENSED_RELAY_MK1_MAX, Constants.CONDENSED_RELAY_MK1_OUTPUT, Constants.CONDENSED_RELAY_MK1_GEN)
-
-    init {
-        input = object : TileEmc.StackHandler(sizeInv) {
-            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-                return if (SlotPredicates.RELAY_INV.test(stack))
-                    super.insertItem(slot, stack, simulate)
-                else
-                    stack
-            }
-        }
-        automationInput = WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN)
-    }
 
     override fun hasCapability(cap: Capability<*>, side: EnumFacing?): Boolean {
         return cap === CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(cap, side)
@@ -149,7 +151,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
                 var emcVal = itemEmc.getStoredEmc(stack)
 
                 if (emcVal > chargeRate) {
-                    emcVal = chargeRate.toDouble()
+                    emcVal = chargeRate
                 }
 
                 if (emcVal > 0 && this.storedEmc + emcVal <= this.maximumEmc) {
@@ -160,7 +162,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
                 val emcVal = EMCHelper.getEmcSellValue(stack)
 
                 if (emcVal > 0 && this.storedEmc + emcVal <= this.maximumEmc) {
-                    this.addEMC(emcVal.toDouble())
+                    this.addEMC(emcVal)
                     burn.shrink(1)
                 }
             }
@@ -176,43 +178,40 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
     }
 
     override fun updateEmc(isExtra: Boolean) {
-        if (isExtra) {
-            if (!extraEMCAdded) {
-                val emc = updateEmc()
-                if (emc > 0f)
-                    this.addEMC((emc / 2).toDouble())
-                extraEMCAdded = true
+        val emcToAdd = getSunRelativeEmc(emcGen) / 20.0f
+        extraEMCAdded = if (isExtra) {
+            if (!extraEMCAdded && emcToAdd > 0.0) {
+                emcToAdd / 2
+                true
             }
+            else return
         } else {
-            extraEMCAdded = false
-            val emc = updateEmc()
-            if (emc > 0f)
-                this.addEMC(emc.toDouble())
+            false
+        }
+        unprocessedEMC += emcToAdd
+        if (unprocessedEMC > 1.0){
+            val emc = unprocessedEMC.toLong()
+            this.addEMC(emc)
+            unprocessedEMC -= emc
+        }
 
-            if (this.storedEmc != 0.0) {
-                val toSend: Double = if (this.storedEmc < emcGen) this.storedEmc else emcGen.toDouble()
-                this.sendToAllAcceptors(toSend)
-            }
+        if (this.storedEmc != 0L) {
+            val toSend: Long = if (this.storedEmc < chargeRate) this.storedEmc else chargeRate
+            this.sendToAllAcceptors(toSend)
         }
     }
 
-    private fun updateEmc(): Float {
-        return if (!this.hasMaxedEmc()) {
-            getSunRelativeEmc(emcGen) / 20.0f
-        } else 0f
-    }
-
-    private fun getSunRelativeEmc(emc: Float): Float {
+    private fun getSunRelativeEmc(emc: Double): Double {
         return emc * sunLevel
     }
 
     private fun sendEmc() {
-        if (this.storedEmc == 0.0) return
+        if (this.storedEmc == 0L) return
 
         if (this.storedEmc <= chargeRate) {
             this.sendToAllAcceptors(this.storedEmc)
         } else {
-            this.sendToAllAcceptors(chargeRate.toDouble())
+            this.sendToAllAcceptors(chargeRate)
         }
     }
 
@@ -220,7 +219,7 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
         val itemEmc = chargeable.item as IItemEmc
         val starEmc = itemEmc.getStoredEmc(chargeable)
         val maxStarEmc = itemEmc.getMaximumEmc(chargeable)
-        var toSend: Double = if (this.storedEmc < chargeRate) this.storedEmc else chargeRate.toDouble()
+        var toSend: Long = if (this.storedEmc < chargeRate) this.storedEmc else chargeRate
 
         if (starEmc + toSend <= maxStarEmc) {
             itemEmc.addEmc(chargeable, toSend)
@@ -246,8 +245,8 @@ open class CondensedRelayMK1Tile internal constructor(sizeInv: Int, maxEmc: Int,
         return nbt
     }
 
-    override fun provideEMC(side: EnumFacing, toExtract: Double): Double {
-        val toRemove = Math.min(currentEMC, toExtract)
+    override fun provideEMC(side: EnumFacing, toExtract: Long): Long {
+        val toRemove = min(currentEMC, toExtract)
         currentEMC -= toRemove
         return toRemove
     }

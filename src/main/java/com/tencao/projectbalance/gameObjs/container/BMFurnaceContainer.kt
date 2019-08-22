@@ -60,12 +60,12 @@ class BMFurnaceContainer(invPlayer: InventoryPlayer, val tile: BMFurnaceTile) : 
         counter = output.slots - 1
 
         //Output(0)
-        this.addSlotToContainer(ValidatedSlot(output, counter--, 125, 35, Predicate{ _-> false }))
+        this.addSlotToContainer(ValidatedSlot(output, counter--, 125, 35, Predicate{ false }))
 
         //Output Storage
         for (i in 0..2)
             for (j in 0..3)
-                this.addSlotToContainer(ValidatedSlot(output, counter--, 147 + i * 18, 8 + j * 18, Predicate{ _-> false }))
+                this.addSlotToContainer(ValidatedSlot(output, counter--, 147 + i * 18, 8 + j * 18, Predicate{ false }))
 
         //Player Inventory
         for (i in 0..2)

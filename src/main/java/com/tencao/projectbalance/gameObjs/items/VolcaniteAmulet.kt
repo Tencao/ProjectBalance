@@ -45,7 +45,7 @@ class VolcaniteAmulet: VolcaniteAmulet() {
     override fun onItemUse(player: EntityPlayer, world: World, pos: BlockPos, hand: EnumHand, sideHit: EnumFacing, f1: Float, f2: Float, f3: Float): EnumActionResult {
         if (!world.isRemote
                 && PlayerHelper.hasEditPermission(player as EntityPlayerMP, pos)
-                && ItemPE.consumeFuel(player, player.getHeldItem(hand), ProjectBConfig.tweaks.VolcaniteEmc.toDouble(), true)) {
+                && ItemPE.consumeFuel(player, player.getHeldItem(hand), ProjectBConfig.tweaks.VolcaniteEmc.toLong(), true)) {
             val tile = world.getTileEntity(pos)
 
             if (tile != null && tile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, sideHit)) {
@@ -64,7 +64,7 @@ class VolcaniteAmulet: VolcaniteAmulet() {
     }
 
     override fun shootProjectile(player: EntityPlayer, stack: ItemStack, hand: EnumHand?): Boolean {
-        if (ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.VolcaniteEmc.toDouble(), true)) {
+        if (ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.VolcaniteEmc.toLong(), true)) {
             return super.shootProjectile(player, stack, hand)
         }
         return false
@@ -74,9 +74,9 @@ class VolcaniteAmulet: VolcaniteAmulet() {
         if (!world.isRemote && ProjectEConfig.pedestalCooldown.volcanitePedCooldown != -1) {
             val te = world.getTileEntity(pos) as? DMPedestalTile ?: return
 
-            if (te.hasRequiredEMC(ProjectBConfig.tweaks.VolcaniteAmuletPedestalCost.toDouble(), true)) {
+            if (te.hasRequiredEMC(ProjectBConfig.tweaks.VolcaniteAmuletPedestalCost.toLong(), true)) {
                 for (player in world.getEntitiesWithinAABB(EntityPlayerMP::class.java, te.getEffectBounds())) {
-                    if (te.hasRequiredEMC(ProjectBConfig.tweaks.VolcaniteAmuletPedestalCost.toDouble(), false)) {
+                    if (te.hasRequiredEMC(ProjectBConfig.tweaks.VolcaniteAmuletPedestalCost.toLong(), false)) {
                         player.addPotionEffect(PotionEffect(MobEffects.WATER_BREATHING, 600))
                         player.addPotionEffect(PotionEffect(MobEffects.FIRE_RESISTANCE, 600))
                         player.addPotionEffect(PotionEffect(MobEffects.HASTE, 600))

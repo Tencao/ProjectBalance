@@ -40,7 +40,8 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
     var timePassed: Long = 0
     var tomes: Int = 0
 
-    val progressScaled: Int
+    val
+            progressScaled: Int
         get() {
             if (requiredEmc == 0L) {
                 return 0
@@ -84,7 +85,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
         PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
         PacketHandler.sendProgressBarUpdateLong(listener, this, 2, tile.requiredTime)
         PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.timePassed)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 2, tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt())
+        PacketHandler.sendProgressBarUpdateInt(listener, this, 2, tile.tomeProviders.stream().filter { it.hasRequiredEMC(20, true) }.count().toInt())
     }
 
     override fun detectAndSendChanges() {
@@ -106,7 +107,7 @@ open class CondenserContainer(invPlayer: InventoryPlayer, internal val tile: Con
             requiredEmc = tile.requiredEmc
         }
 
-        val count = tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt()
+        val count = tile.tomeProviders.stream().filter { it.hasRequiredEMC(20, true) }.count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
                 PacketHandler.sendProgressBarUpdateInt(listener, this, 2, count)

@@ -43,12 +43,12 @@ import org.apache.logging.log4j.Logger
 @Mod(modid = ProjectBCore.MODID, name = ProjectBCore.NAME, version = ProjectBCore.VERSION, dependencies = ProjectBCore.DEPS)
 object ProjectBCore {
     const val MODID = "projectbalance"
-    const val VERSION = "1.12.2-0.2.1"
+    const val VERSION = "1.12.2-0.3.0"
     const val NAME = "ProjectBalance"
     const val DEPS = "required-after:forge@[14.23.1.2594,);" +
             "required-after:forgelin@[1.6.0,);" +
             "required-after:saomclib@[1.2.0.7,);" +
-            "required-after:projecte@[1.12-PE1.3.0,);"
+            "required-after:projecte@[1.12-PE1.4.0,);"
 
     @SidedProxy(clientSide = "com.tencao.projectbalance.proxies.ClientProxy", serverSide = "com.tencao.projectbalance.proxies.ServerProxy")
     lateinit var proxy: IProxy

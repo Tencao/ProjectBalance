@@ -23,7 +23,7 @@ import net.minecraftforge.items.IItemHandler
 
 class ItemPE: ItemPE() {
 
-    fun consumeFuel(inv: IItemHandler, stack: ItemStack, amount: Double, shouldRemove: Boolean): Boolean {
+    fun consumeFuel(inv: IItemHandler, stack: ItemStack, amount: Long, shouldRemove: Boolean): Boolean {
         if (amount <= 0) {
             return true
         }
@@ -33,7 +33,7 @@ class ItemPE: ItemPE() {
         if (current < amount) {
             val consume = EMCHelper.consumeInvFuel(inv, amount - current)
 
-            if (consume == -1.0) {
+            if (consume == -1L) {
                 return false
             }
 

@@ -36,11 +36,15 @@ import net.minecraftforge.items.ItemStackHandler
 
 abstract class TileEmc : TileEmcBase, ITickable {
     constructor() {
-        setMaximumEMC(Constants.TILE_MAX_EMC.toDouble())
+        setMaximumEMC(Constants.TILE_MAX_EMC)
     }
 
     constructor(maxAmount: Int) {
-        setMaximumEMC(maxAmount.toDouble())
+        setMaximumEMC(maxAmount.toLong())
+    }
+
+    constructor(maxAmount: Long) {
+        setMaximumEMC(maxAmount)
     }
 
     override fun getUpdateTag(): NBTTagCompound {
@@ -61,7 +65,7 @@ abstract class TileEmc : TileEmcBase, ITickable {
      *
      * @param emc The maximum combined emc to send to others
      */
-    protected fun sendToAllAcceptors(emc: Double) {
+    protected fun sendToAllAcceptors(emc: Long) {
         if (this !is IEmcProvider) {
             // todo move this method somewhere
             throw UnsupportedOperationException("sending without being a provider")
@@ -69,6 +73,7 @@ abstract class TileEmc : TileEmcBase, ITickable {
 
 
         val tiles = Maps.filterValues(WorldHelper.getAdjacentTileEntitiesMapped(world, this), Predicates.instanceOf(IEmcAcceptor::class.java))
+        if (tiles.isEmpty()) return
 
         val emcPer = emc / tiles.size
         for ((key, value) in tiles) {

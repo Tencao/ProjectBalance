@@ -29,7 +29,7 @@ class Arcana: Arcana() {
     override fun shootProjectile(player: EntityPlayer, stack: ItemStack, hand: EnumHand?): Boolean {
         val world = player.entityWorld
         if (world.isRemote) return false
-        if (ItemHelper.getOrCreateCompound(stack).getByte(ItemPE.TAG_MODE) == 3.toByte() && !ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.SWRGEmc.toDouble(), true))
+        if (ItemHelper.getOrCreateCompound(stack).getByte(ItemPE.TAG_MODE) == 3.toByte() && !ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.SWRGEmc.toLong(), true))
             return false
         return super.shootProjectile(player, stack, hand)
     }

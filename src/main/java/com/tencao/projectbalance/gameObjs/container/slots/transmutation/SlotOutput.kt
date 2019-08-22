@@ -20,7 +20,7 @@ class SlotOutput(private val inv: TransmutationInventory, par2: Int, par3: Int, 
             stack.count = 0
             return stack
         }
-        inv.removeEmc(emcValue.toDouble())
+        inv.removeEmc(emcValue)
         inv.checkForUpdates()
         if (ComplexHelper.getCraftTime(stack) > 100) {
             inv.player.getInternalCooldowns().setStack(stack.copy())

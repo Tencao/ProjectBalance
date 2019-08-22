@@ -47,13 +47,13 @@ class ClientProxy: IProxy {
 
     override fun registerRenderers() {
         // Tile Entity
-        ClientRegistry.bindTileEntitySpecialRenderer<CondenserTile>(CondenserTile::class.java, CondenserRenderer())
-        ClientRegistry.bindTileEntitySpecialRenderer<CondenserMK2Tile>(CondenserMK2Tile::class.java, CondenserMK2Renderer())
+        ClientRegistry.bindTileEntitySpecialRenderer(CondenserTile::class.java, CondenserRenderer())
+        ClientRegistry.bindTileEntitySpecialRenderer(CondenserMK2Tile::class.java, CondenserMK2Renderer())
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK1Tile::class.java, PowerFlowerRenderer(1))
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK2Tile::class.java, PowerFlowerRenderer(2))
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK3Tile::class.java, PowerFlowerRenderer(3))
         ClientRegistry.bindTileEntitySpecialRenderer(PowerFlowerMK4Tile::class.java, PowerFlowerRenderer(4))
-        ClientRegistry.bindTileEntitySpecialRenderer<DMPedestalTile>(DMPedestalTile::class.java, PedestalRenderer())
+        ClientRegistry.bindTileEntitySpecialRenderer(DMPedestalTile::class.java, PedestalRenderer())
     }
 
     override fun registerEvents() {

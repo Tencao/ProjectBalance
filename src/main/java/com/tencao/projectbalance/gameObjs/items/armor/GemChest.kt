@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
+import kotlin.math.floor
 
 class GemChest : GemArmorBase(EntityEquipmentSlot.CHEST), IFireProtector {
 
@@ -42,9 +43,9 @@ class GemChest : GemArmorBase(EntityEquipmentSlot.CHEST), IFireProtector {
 
     override fun onArmorTick(world: World, player: EntityPlayer, chest: ItemStack) {
         if (world.isRemote) {
-            val x = Math.floor(player.posX).toInt()
+            val x = floor(player.posX).toInt()
             val y = (player.posY - player.yOffset).toInt()
-            val z = Math.floor(player.posZ).toInt()
+            val z = floor(player.posZ).toInt()
             val pos = BlockPos(x, y, z)
 
             val b = world.getBlockState(pos.down()).block
@@ -60,7 +61,7 @@ class GemChest : GemArmorBase(EntityEquipmentSlot.CHEST), IFireProtector {
             player.getCapability(InternalTimers.CAPABILITY, null)!!.activateFeed()
 
             if (player.foodStats.needFood() && player.getCapability(InternalTimers.CAPABILITY, null)!!.canFeed() && getStoredEmc(chest) >= ProjectBConfig.tweaks.BMFoodAbility) {
-                removeEmc(chest, ProjectBConfig.tweaks.BMFoodAbility.toDouble())
+                removeEmc(chest, ProjectBConfig.tweaks.BMFoodAbility.toLong())
                 player.foodStats.addStats(2, 10f)
             }
         }
@@ -68,7 +69,7 @@ class GemChest : GemArmorBase(EntityEquipmentSlot.CHEST), IFireProtector {
 
     fun doExplode(player: EntityPlayer, chest: ItemStack) {
         if (ProjectEConfig.difficulty.offensiveAbilities && getStoredEmc(chest) >= ProjectBConfig.tweaks.BMExplosionAbility) {
-            removeEmc(chest, ProjectBConfig.tweaks.BMExplosionAbility.toDouble())
+            removeEmc(chest, ProjectBConfig.tweaks.BMExplosionAbility.toLong())
             WorldHelper.createNovaExplosion(player.entityWorld, player, player.posX, player.posY, player.posZ, 9.0f)
         }
     }

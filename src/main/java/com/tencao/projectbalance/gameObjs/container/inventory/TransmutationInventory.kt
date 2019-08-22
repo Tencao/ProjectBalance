@@ -19,22 +19,27 @@ package com.tencao.projectbalance.gameObjs.container.inventory
 import com.tencao.projectbalance.mapper.Graph
 import moze_intel.projecte.api.ProjectEAPI
 import moze_intel.projecte.api.capabilities.IKnowledgeProvider
+import moze_intel.projecte.api.item.IItemEmc
 import moze_intel.projecte.emc.FuelMapper
-import moze_intel.projecte.utils.*
+import moze_intel.projecte.utils.Constants.TILE_MAX_EMC
+import moze_intel.projecte.utils.EMCHelper
+import moze_intel.projecte.utils.ItemHelper
+import moze_intel.projecte.utils.NBTWhitelist
+import moze_intel.projecte.utils.PlayerHelper.SCOREBOARD_EMC
+import moze_intel.projecte.utils.PlayerHelper.updateScore
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.math.MathHelper
 import net.minecraftforge.items.IItemHandlerModifiable
 import net.minecraftforge.items.ItemStackHandler
 import net.minecraftforge.items.wrapper.CombinedInvWrapper
 import java.util.*
+import kotlin.math.max
 import kotlin.streams.toList
+
 
 class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY, null)!!.inputAndLocks as IItemHandlerModifiable,
         ItemStackHandler(2), ItemStackHandler(16)) {
-
 
     val provider: IKnowledgeProvider = player.getCapability(ProjectEAPI.KNOWLEDGE_CAPABILITY, null)!!
     private val inputLocks: IItemHandlerModifiable = itemHandler[0]
@@ -70,7 +75,7 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
                 val recipes = Graph[stack]
                         .recipes
                         .parallelStream()
-                        .filter {
+                        .filter { it ->
                             it.input
                                     .stream()
                                     .filter {
@@ -82,7 +87,7 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
                         }
                         .toList()
                 if (recipes.isNotEmpty()) {
-                    canAdd = recipes.stream().filter { it.input.stream().allMatch { it.toStacks().any { EMCHelper.doesItemHaveEmc(it) && provider.hasKnowledge(it) } } }.findFirst().isPresent
+                    canAdd = recipes.stream().filter { it.input.stream().allMatch { input -> input.toStacks().any {stack -> EMCHelper.doesItemHaveEmc(stack) && provider.hasKnowledge(stack) } } }.findFirst().isPresent
                 }
             }
             if (canAdd) {
@@ -135,7 +140,7 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         val matterEmc = EMCHelper.getEmcValue(outputs.getStackInSlot(0))
         val fuelEmc = EMCHelper.getEmcValue(outputs.getStackInSlot(FUEL_START))
 
-        if (Math.max(matterEmc, fuelEmc) > provider.emc) {
+        if (max(matterEmc, fuelEmc) > getAvailableEMC()) {
             updateClientTargets()
         }
     }
@@ -155,7 +160,6 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         var lockCopy = ItemStack.EMPTY
 
         knowledge.sortBy ( EMCHelper::getEmcValue )
-        val searchHelper = ItemSearchHelper.create(filter)
         if (!inputLocks.getStackInSlot(LOCK_INDEX).isEmpty) {
             lockCopy = ItemHelper.getNormalizedStack(inputLocks.getStackInSlot(LOCK_INDEX))
 
@@ -165,12 +169,12 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
 
             val reqEmc = EMCHelper.getEmcValue(inputLocks.getStackInSlot(LOCK_INDEX))
 
-            if (provider.emc < reqEmc) {
+            if (getAvailableEMC() < reqEmc) {
                 return
             }
 
             if (lockCopy.hasTagCompound() && !NBTWhitelist.shouldDupeWithNBT(lockCopy)) {
-                lockCopy.tagCompound = NBTTagCompound()
+                lockCopy.tagCompound = null
             }
 
             val iter = knowledge.iterator()
@@ -189,7 +193,7 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
                     continue
                 }
 
-                if (!searchHelper.doesItemMatchFilter(stack)) {
+                if (!doesItemMatchFilter(stack)) {
                     iter.remove()
                     continue
                 }
@@ -206,12 +210,12 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
             while (iter.hasNext()) {
                 val stack = iter.next()
 
-                if (provider.emc < EMCHelper.getEmcValue(stack)) {
+                if (getAvailableEMC() < EMCHelper.getEmcValue(stack)) {
                     iter.remove()
                     continue
                 }
 
-                if (!searchHelper.doesItemMatchFilter(stack)) {
+                if (!doesItemMatchFilter(stack)) {
                     iter.remove()
                     continue
                 }
@@ -253,10 +257,29 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         }
     }
 
+    private fun doesItemMatchFilter(stack: ItemStack): Boolean {
+        val displayName: String?
+
+        try {
+            displayName = stack.displayName.toLowerCase(Locale.ROOT)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            //From old code... Not sure if intended to not remove items that crash on getDisplayName
+            return true
+        }
+
+        if (displayName.isNullOrBlank()) {
+            return false
+        } else if (filter.isNotEmpty() && !displayName.contains(filter)) {
+            return false
+        }
+        return true
+    }
+
     fun writeIntoOutputSlot(slot: Int, item: ItemStack) {
 
         if (EMCHelper.doesItemHaveEmc(item)
-                && EMCHelper.getEmcValue(item) <= provider.emc
+                && EMCHelper.getEmcValue(item) <= getAvailableEMC()
                 && provider.hasKnowledge(item)) {
             outputs.setStackInSlot(slot, item)
         } else {
@@ -264,32 +287,129 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         }
     }
 
-    fun addEmc(value: Double) {
+    fun addEmc(value: Long) {
+        var value = value
+        if (value == 0L) {
+            //Optimization to not look at the items if nothing will happen anyways
+            return
+        }
+        if (value < 0) {
+            //Make sure it is using the correct method so that it handles the klein stars properly
+            removeEmc(-value)
+        }
+        //Start by trying to add it to the EMC items on the left
+        for (i in 0 until inputLocks.slots) {
+            if (i == LOCK_INDEX) {
+                continue
+            }
+            val stack = inputLocks.getStackInSlot(i)
+            if (!stack.isEmpty && stack.item is IItemEmc) {
+                val itemEmc = stack.item as IItemEmc
+                val neededEmc = itemEmc.getMaximumEmc(stack) - itemEmc.getStoredEmc(stack)
+                if (value <= neededEmc) {
+                    //This item can store all of the amount being added
+                    itemEmc.addEmc(stack, value)
+                    return
+                }
+                //else more than this item can fit, so fill the item and then continue going
+                itemEmc.addEmc(stack, neededEmc)
+                value -= neededEmc
+            }
+        }
+        val emcToMax = TILE_MAX_EMC - provider.emc
+        if (value > emcToMax) {
+            val excessEMC = value - emcToMax
+            value = emcToMax
+            //Will finish filling provider
+            //Now with excess EMC we can check against the lock slot as that is the last spot that has its EMC used.
+            val stack = inputLocks.getStackInSlot(LOCK_INDEX)
+            if (!stack.isEmpty && stack.item is IItemEmc) {
+                val itemEmc = stack.item as IItemEmc
+                val neededEmc = itemEmc.getMaximumEmc(stack) - itemEmc.getStoredEmc(stack)
+                if (excessEMC > neededEmc) {
+                    itemEmc.addEmc(stack, neededEmc)
+                } else {
+                    itemEmc.addEmc(stack, excessEMC)
+                }
+            }
+        }
+
         provider.emc = provider.emc + value
 
-        if (provider.emc >= Constants.TILE_MAX_EMC || provider.emc < 0) {
-            provider.emc = Constants.TILE_MAX_EMC.toDouble()
+        if (provider.emc >= TILE_MAX_EMC || provider.emc < 0) {
+            provider.emc = TILE_MAX_EMC
         }
 
         if (!player.entityWorld.isRemote) {
-            PlayerHelper.updateScore(player as EntityPlayerMP, PlayerHelper.SCOREBOARD_EMC, MathHelper.floor(provider.emc))
+            updateScore(player as EntityPlayerMP, SCOREBOARD_EMC, provider.emc.toInt())
         }
     }
 
-    fun removeEmc(value: Double) {
+    fun removeEmc(value: Long) {
+        var value = value
+        if (value == 0L) {
+            //Optimization to not look at the items if nothing will happen anyways
+            return
+        }
+        if (value < 0) {
+            //Make sure it is using the correct method so that it handles the klein stars properly
+            addEmc(-value)
+        }
+        if (hasMaxedEmc()) {
+            //If the EMC is maxed, check and try to remove from the lock slot if it is IItemEMC
+            //This is the only case if the provider is full when the IItemEMC was put in the lock slot
+            val stack = inputLocks.getStackInSlot(LOCK_INDEX)
+            if (!stack.isEmpty && stack.item is IItemEmc) {
+                val itemEmc = stack.item as IItemEmc
+                val storedEmc = itemEmc.getStoredEmc(stack)
+                if (storedEmc >= value) {
+                    //All of it can be removed from the lock item
+                    itemEmc.extractEmc(stack, value)
+                    return
+                }
+                itemEmc.extractEmc(stack, storedEmc)
+                value -= storedEmc
+            }
+        }
+        if (value > provider.emc) {
+            //Remove from provider first
+            //This code runs first to simplify the logic
+            //But it simulates removal first by extracting the amount from value and then removing that excess from items
+            var toRemove = value - provider.emc
+            value = provider.emc
+            for (i in 0 until inputLocks.slots) {
+                if (i == LOCK_INDEX) {
+                    continue
+                }
+                val stack = inputLocks.getStackInSlot(i)
+                if (!stack.isEmpty && stack.item is IItemEmc) {
+                    val itemEmc = stack.item as IItemEmc
+                    val storedEmc = itemEmc.getStoredEmc(stack)
+                    if (toRemove <= storedEmc) {
+                        //The EMC that is being removed that the provider does not contain is satisfied by this IItemEMC
+                        //Remove it and then
+                        itemEmc.extractEmc(stack, toRemove)
+                        break
+                    }
+                    //Removes all the emc from this item
+                    itemEmc.extractEmc(stack, storedEmc)
+                    toRemove -= storedEmc
+                }
+            }
+        }
         provider.emc = provider.emc - value
 
         if (provider.emc < 0) {
-            provider.emc = 0.0
+            provider.emc = 0
         }
 
         if (!player.entityWorld.isRemote) {
-            PlayerHelper.updateScore(player as EntityPlayerMP, PlayerHelper.SCOREBOARD_EMC, MathHelper.floor(provider.emc))
+            updateScore(player as EntityPlayerMP, SCOREBOARD_EMC, provider.emc.toInt())
         }
     }
 
     fun hasMaxedEmc(): Boolean {
-        return provider.emc >= Constants.TILE_MAX_EMC
+        return provider.emc >= TILE_MAX_EMC
     }
 
     fun getHandlerForSlot(slot: Int): IItemHandlerModifiable {
@@ -305,6 +425,37 @@ class TransmutationInventory(val player: EntityPlayer): CombinedInvWrapper(playe
         }
 
         return slot
+    }
+
+    /**
+     * @return EMC available from the Provider + any klein stars in the input slots.
+     */
+    fun getAvailableEMC(): Long {
+        //TODO: Cache this value somehow, or at least cache which slots have IItemEMC in them?
+        if (hasMaxedEmc()) {
+            return TILE_MAX_EMC
+        }
+
+        var emc = provider.emc
+        var emcToMax = TILE_MAX_EMC - emc
+        for (i in 0 until inputLocks.slots) {
+            if (i == LOCK_INDEX) {
+                //Skip it even though this technically could add to available EMC.
+                //This is because this case can only happen if the provider is already at max EMC
+                continue
+            }
+            val stack = inputLocks.getStackInSlot(i)
+            if (!stack.isEmpty && stack.item is IItemEmc) {
+                val itemEmc = stack.item as IItemEmc
+                val storedEmc = itemEmc.getStoredEmc(stack)
+                if (storedEmc >= emcToMax) {
+                    return TILE_MAX_EMC
+                }
+                emc += storedEmc
+                emcToMax -= storedEmc
+            }
+        }
+        return emc
     }
 
 }

@@ -36,7 +36,7 @@ import net.minecraftforge.items.ItemHandlerHelper
 class PowerFlower(private val tier: Int) : AlchemicalChest() {
 
     init {
-        this.unlocalizedName = "pe_powerflower_MK" + Integer.toString(tier)
+        this.translationKey = "pe_powerflower_MK$tier"
         this.setLightLevel(Constants.COLLECTOR_LIGHT_VALS[tier - 1])
     }
 

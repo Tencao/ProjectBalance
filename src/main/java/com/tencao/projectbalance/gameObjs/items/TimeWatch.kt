@@ -33,7 +33,7 @@ class TimeWatch: TimeWatch() {
             val te = world.getTileEntity(pos)
             if (te is DMPedestalTile) {
                 te.nearbyBlocks.forEach { if (world.getTileEntity(it) is IEmcGen &&
-                        te.hasRequiredEMC(ProjectBConfig.tweaks.TimeWatchBoostPedestalCost.toDouble(), false))
+                        te.hasRequiredEMC(ProjectBConfig.tweaks.TimeWatchBoostPedestalCost.toLong(), false))
                     (world.getTileEntity(it) as IEmcGen).updateEmc(true)
                 }
             }

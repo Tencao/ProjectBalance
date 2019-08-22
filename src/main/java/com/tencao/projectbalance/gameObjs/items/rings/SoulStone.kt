@@ -61,7 +61,7 @@ class SoulStone: SoulStone() {
         val tag = ItemHelper.getOrCreateCompound(stack)
         if (!tag.getBoolean(ItemPE.TAG_ACTIVE)
                 && player.getInternalCooldowns().canHeal()
-                && ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.SoulStoneEmc.toDouble(), true)) {
+                && ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.SoulStoneEmc.toLong(), true)) {
             tag.setBoolean(ItemPE.TAG_ACTIVE, true)
             player.getInternalCooldowns().triggerHealCooldown()
         } else
@@ -75,7 +75,7 @@ class SoulStone: SoulStone() {
             val players = world.getEntitiesWithinAABB(EntityPlayerMP::class.java, te.getEffectBounds())
 
             for (player in players) {
-                if (player.health < player.maxHealth && te.hasRequiredEMC(ProjectBConfig.tweaks.SoulStonePedestalCost.toDouble(), false)) {
+                if (player.health < player.maxHealth && te.hasRequiredEMC(ProjectBConfig.tweaks.SoulStonePedestalCost.toLong(), false)) {
                     world.playSound(null, player.posX, player.posY, player.posZ, PESounds.HEAL, SoundCategory.BLOCKS, 1.0f, 1.0f)
                     player.heal(1.0f) // 1/2 heart
                 }

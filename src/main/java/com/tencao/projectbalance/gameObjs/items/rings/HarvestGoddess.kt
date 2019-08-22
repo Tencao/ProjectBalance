@@ -36,18 +36,18 @@ class HarvestGoddess: HarvestGoddess() {
             return
         }
 
-        val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost * WorldHelper.getNearbyGrowth(true, world, entity.position, null)
+        val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost.toLong() * WorldHelper.getNearbyGrowth(true, world, entity.position, null)
 
         if (ItemHelper.getOrCreateCompound(stack).getBoolean(ItemPE.TAG_ACTIVE)) {
             val storedEmc = ItemPE.getEmc(stack)
 
-            if (storedEmc == 0.0 && !ItemPE.consumeFuel(entity, stack, cost.toDouble(), true)) {
+            if (storedEmc == 0L && !ItemPE.consumeFuel(entity, stack, cost, true)) {
                 stack.tagCompound!!.setBoolean(ItemPE.TAG_ACTIVE, false)
             } else {
                 WorldHelper.growNearbyRandomly(true, world, BlockPos(entity), entity)
-                ItemPE.removeEmc(stack, 0.32)
+                ItemPE.removeEmc(stack, 1L)
             }
-        } else if (ItemPE.consumeFuel(entity, stack, cost.toDouble(), true)) {
+        } else if (ItemPE.consumeFuel(entity, stack, cost, true)) {
             WorldHelper.growNearbyRandomly(false, world, BlockPos(entity), entity)
         }
     }
@@ -56,9 +56,9 @@ class HarvestGoddess: HarvestGoddess() {
         if (!world.isRemote && ProjectEConfig.pedestalCooldown.harvestPedCooldown != -1) {
             val te = world.getTileEntity(pos) as? DMPedestalTile ?: return
 
-            val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost * WorldHelper.getNearbyGrowth(true, world, te.nearbyBlocks, null)
+            val cost = ProjectBConfig.tweaks.HarvestGoddessPedestalCost.toLong() * WorldHelper.getNearbyGrowth(true, world, te.nearbyBlocks, null)
 
-            if (te.hasRequiredEMC(cost.toDouble(), false))
+            if (te.hasRequiredEMC(cost, false))
                 WorldHelper.growNearbyRandomly(true, world, te.nearbyBlocks, null)
 
             te.setActivityCooldown(ProjectEConfig.pedestalCooldown.harvestPedCooldown)

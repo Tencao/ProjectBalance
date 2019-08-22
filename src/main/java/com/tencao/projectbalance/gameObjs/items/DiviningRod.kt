@@ -51,19 +51,19 @@ class DiviningRod(val modes: Array<String>): DiviningRod(modes) {
 
         when(mode.toInt()){
             0 -> {
-                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 0), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 0)).toDouble(), true)) {
+                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 0), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 0)), true)) {
                     player.sendMessage(TextComponentTranslation("pe.divining.noemc"))
                     return EnumActionResult.SUCCESS
                 }
             }
             1 -> {
-                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 1), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 1)).toDouble(), true)) {
+                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 1), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 1)), true)) {
                     player.sendMessage(TextComponentTranslation("pe.divining.noemc"))
                     return EnumActionResult.SUCCESS
                 }
             }
             2 -> {
-                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 2), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 2)).toDouble(), true)) {
+                if (!ItemHelper.decreaseStack(ItemStack(ObjHandler.covalence, 1, 2), player.inventory, 1) && !consumeFuel(player, player.getHeldItem(hand), EMCHelper.getEmcValue(ItemStack(ObjHandler.covalence, 1, 2)), true)) {
                     player.sendMessage(TextComponentTranslation("pe.divining.noemc"))
                     return EnumActionResult.SUCCESS
                 }

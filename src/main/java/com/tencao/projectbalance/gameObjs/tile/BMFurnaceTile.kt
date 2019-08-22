@@ -22,9 +22,7 @@ import net.minecraftforge.items.ItemHandlerHelper
 
 class BMFurnaceTile: DMFurnaceTile(2, 6) {
 
-    override fun getInvSize(): Int{
-        return 13
-    }
+    override val invSize: Int = 13
 
     override fun smeltItem() {
         val toSmelt = inputInventory.getStackInSlot(0)

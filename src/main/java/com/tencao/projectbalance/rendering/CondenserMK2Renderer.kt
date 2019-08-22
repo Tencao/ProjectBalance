@@ -30,8 +30,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 
 @SideOnly(Side.CLIENT)
 class CondenserMK2Renderer : TileEntitySpecialRenderer<CondenserMK2Tile>() {
-    private val texture = ResourceLocation(PECore.MODID.toLowerCase(), "textures/blocks/condenser_mk2.png")
-    private val model = ModelChest()
+    private val texture by lazy { ResourceLocation(PECore.MODID.toLowerCase(), "textures/blocks/condenser_mk2.png") }
+    private val model by lazy { ModelChest() }
 
     override fun render(condenser: CondenserMK2Tile, x: Double, y: Double, z: Double, partialTicks: Float, destroyStage: Int, unknown: Float) {
         var direction: EnumFacing? = null
@@ -56,6 +56,7 @@ class CondenserMK2Renderer : TileEntitySpecialRenderer<CondenserMK2Tile>() {
                 EnumFacing.SOUTH -> angle = 0
                 EnumFacing.WEST -> angle = 90
                 EnumFacing.EAST -> angle = -90
+                else -> angle = 0
             }
         }
 

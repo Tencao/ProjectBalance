@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.SideOnly
 class Pedestal: Pedestal() {
 
     init {
-        this.defaultState = this.blockState.baseState.withProperty<EnumMatterType, EnumMatterType>(PEStateProps.TIER_PROP, EnumMatterType.DARK_MATTER)
+        this.defaultState = this.blockState.baseState.withProperty(PEStateProps.TIER_PROP, EnumMatterType.DARK_MATTER)
     }
 
     private fun dropItem(world: World, pos: BlockPos) {
@@ -115,8 +115,7 @@ class Pedestal: Pedestal() {
     }
 
     override fun createTileEntity(world: World, state: IBlockState): TileEntity {
-        val type = state.getValue(PEStateProps.TIER_PROP)
-        return when (type) {
+        return when (state.getValue(PEStateProps.TIER_PROP)) {
             EnumMatterType.RED_MATTER -> RMPedestalTile()
             EnumMatterType.BLUE_MATTER -> BMPedestalTile()
             else -> DMPedestalTile()

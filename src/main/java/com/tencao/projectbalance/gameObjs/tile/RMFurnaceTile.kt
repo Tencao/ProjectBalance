@@ -18,9 +18,7 @@ package com.tencao.projectbalance.gameObjs.tile
 
 class RMFurnaceTile: DMFurnaceTile(3, 4) {
 
-    override fun getInvSize(): Int{
-        return 13
-    }
+    override val invSize: Int = 13
 
     override fun getOreDoubleChance(): Float {
         return 1F

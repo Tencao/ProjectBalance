@@ -26,8 +26,8 @@ import net.minecraftforge.fml.relauncher.SideOnly
 class Matter: Matter() {
     private val names = arrayOf("dark", "red", "blue")
 
-    override fun getUnlocalizedName(stack: ItemStack?): String {
-        return super.getUnlocalizedName() + "_" + names[stack!!.itemDamage]
+    override fun getTranslationKey(stack: ItemStack): String {
+        return super.getTranslationKey() + "_" + names[stack.itemDamage]
     }
 
     @SideOnly(Side.CLIENT)

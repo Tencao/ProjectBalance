@@ -30,6 +30,7 @@ import net.minecraft.util.text.TextComponentTranslation
 import net.minecraft.world.World
 import net.minecraft.world.WorldServer
 import java.util.*
+import kotlin.math.pow
 
 class DestructionCatalyst: DestructionCatalyst() {
 
@@ -45,7 +46,7 @@ class DestructionCatalyst: DestructionCatalyst() {
         val drops = ArrayList<ItemStack>()
 
 
-        if (!consumeFuel(player, stack, ProjectBConfig.tweaks.DestroEmc.toDouble(), false)) {
+        if (!consumeFuel(player, stack, ProjectBConfig.tweaks.DestroEmc.toLong(), false)) {
             player.sendMessage(TextComponentTranslation("pe.noemc"))
         }
 
@@ -57,7 +58,7 @@ class DestructionCatalyst: DestructionCatalyst() {
                 continue
             }
 
-            if (!consumeFuel(player, stack, ProjectBConfig.tweaks.DestroEmc.toDouble(), true)) {
+            if (!consumeFuel(player, stack, ProjectBConfig.tweaks.DestroEmc.toLong(), true)) {
                 player.sendMessage(TextComponentTranslation("pe.noemc"))
                 break
             }
@@ -92,6 +93,6 @@ class DestructionCatalyst: DestructionCatalyst() {
         if (charge <= 0) {
             return 1
         }
-        return Math.pow(2.0, (1 + charge).toDouble()).toInt()
+        return 2.0.pow((1 + charge).toDouble()).toInt()
     }
 }

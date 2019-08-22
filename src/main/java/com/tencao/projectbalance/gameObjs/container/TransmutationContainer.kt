@@ -16,7 +16,7 @@
 
 package com.tencao.projectbalance.gameObjs.container
 
-import be.bluexin.saomclib.sentPacketToServer
+import be.bluexin.saomclib.packets.PacketPipeline
 import com.tencao.projectbalance.gameObjs.container.inventory.TransmutationInventory
 import com.tencao.projectbalance.gameObjs.container.slots.transmutation.*
 import com.tencao.projectbalance.handlers.getInternalCooldowns
@@ -98,7 +98,7 @@ class TransmutationContainer(invPlayer: InventoryPlayer, val transmutationInvent
 
             for (i in 1..player!!.getInternalCooldowns().getStackLimit(newStack)) {
                 if (transmutationInventory.provider.emc >= emc) {
-                    transmutationInventory.removeEmc(emc.toDouble())
+                    transmutationInventory.removeEmc(emc)
                     player.getInternalCooldowns().setStack(newStack.copy())
                 } else break
             }
@@ -114,7 +114,7 @@ class TransmutationContainer(invPlayer: InventoryPlayer, val transmutationInvent
             }
 
             while (!transmutationInventory.hasMaxedEmc() && stack.count > 0) {
-                transmutationInventory.addEmc(emc.toDouble())
+                transmutationInventory.addEmc(emc)
                 stack.shrink(1)
             }
 
@@ -130,7 +130,7 @@ class TransmutationContainer(invPlayer: InventoryPlayer, val transmutationInvent
 
     override fun slotClick(slot: Int, button: Int, flag: ClickType?, player: EntityPlayer): ItemStack {
         if (player.entityWorld.isRemote && transmutationInventory.getHandlerForSlot(slot) === transmutationInventory.outputs) {
-            player.sentPacketToServer(SearchUpdatePacket(transmutationInventory.getIndexFromSlot(slot), getSlot(slot).stack))
+            PacketPipeline.sendToServer(SearchUpdatePacket(transmutationInventory.getIndexFromSlot(slot), getSlot(slot).stack))
         }
 
         return if (slot == blocked) {

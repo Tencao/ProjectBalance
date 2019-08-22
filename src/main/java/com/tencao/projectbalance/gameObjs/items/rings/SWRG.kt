@@ -36,7 +36,7 @@ class SWRG: SWRG() {
                 if (living is EntityTameable && living.isTamed) {
                     continue
                 }
-                if (te.hasRequiredEMC(ProjectBConfig.tweaks.SWRGPedestalCost.toDouble(), false))
+                if (te.hasRequiredEMC(ProjectBConfig.tweaks.SWRGPedestalCost.toLong(), false))
                     world.addWeatherEffect(EntityLightningBolt(world, living.posX, living.posY, living.posZ, false))
             }
             te.setActivityCooldown(ProjectEConfig.pedestalCooldown.swrgPedCooldown)

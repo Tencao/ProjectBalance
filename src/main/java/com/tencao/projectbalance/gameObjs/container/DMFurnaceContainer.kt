@@ -33,7 +33,7 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import java.util.function.Predicate
 
-open class DMFurnaceContainer(invPlayer: InventoryPlayer, open val tile: DMFurnaceTile) : Container() {
+open class DMFurnaceContainer(invPlayer: InventoryPlayer, val tile: DMFurnaceTile) : Container() {
 
     private var lastCookTime: Int = 0
     private var lastBurnTime: Int = 0
@@ -43,39 +43,23 @@ open class DMFurnaceContainer(invPlayer: InventoryPlayer, open val tile: DMFurna
         val fuel = tile.getFuel()
         val input = tile.getInput()
         val output = tile.getOutput()
-
-        //Fuel Slot
         this.addSlotToContainer(ValidatedSlot(fuel, 0, 49, 53, SlotPredicates.FURNACE_FUEL))
-
-        //Input(0)
         this.addSlotToContainer(ValidatedSlot(input, 0, 49, 17, SlotPredicates.SMELTABLE))
-
         var counter = input.slots - 1
-
-        //Input Storage
         for (i in 0..1)
             for (j in 0..3) {
                 this.addSlotToContainer(ValidatedSlot(input, counter--, 13 + i * 18, 8 + j * 18, SlotPredicates.SMELTABLE))
             }
-
         counter = output.slots - 1
-
-        //Output
-        this.addSlotToContainer(ValidatedSlot(output, counter--, 109, 35, Predicate{ _-> false }))
-
-        //OutputStorage
-        for (i in 0..1)
-            for (j in 0..3) {
-                this.addSlotToContainer(ValidatedSlot(output, counter--, 131 + i * 18, 8 + j * 18, Predicate{ _-> false }))
+        this.addSlotToContainer(ValidatedSlot(output, counter--, 109, 35, Predicate{ false }))
+        for (i in 0 until 1)
+            for (j in 0 until 3) {
+                this.addSlotToContainer(ValidatedSlot(output, counter--, 131 + i * 18, 8 + j * 18, Predicate{ false }))
             }
-
-        //Player Inventory
-        for (i in 0..2)
-            for (j in 0..8)
+        for (i in 0 until 2)
+            for (j in 0 until 8)
                 this.addSlotToContainer(Slot(invPlayer, j + i * 9 + 9, 8 + j * 18, 84 + i * 18))
-
-        //Player Hotbar
-        for (i in 0..8)
+        for (i in 0 until 8)
             this.addSlotToContainer(Slot(invPlayer, i, 8 + i * 18, 142))
     }
 

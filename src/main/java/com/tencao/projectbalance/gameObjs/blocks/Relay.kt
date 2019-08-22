@@ -38,7 +38,7 @@ import net.minecraftforge.items.CapabilityItemHandler
 class Relay(private val tier: Int) : BlockDirection(Material.ROCK) {
 
     init {
-        this.unlocalizedName = "pe_relay_MK" + Integer.toString(tier)
+        this.translationKey = "pe_relay_MK$tier"
         this.setLightLevel(Constants.COLLECTOR_LIGHT_VALS[tier - 1])
         this.setHardness(10.0f)
     }

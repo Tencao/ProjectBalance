@@ -21,7 +21,7 @@ class SlotInput(private val inv: TransmutationInventory, par2: Int, par3: Int, p
 
         if (stack.item is IItemEmc) {
             val itemEmc = stack.item as IItemEmc
-            val remainingEmc = itemEmc.getMaximumEmc(stack) - Math.ceil(itemEmc.getStoredEmc(stack)).toInt()
+            val remainingEmc = itemEmc.getMaximumEmc(stack) - itemEmc.getStoredEmc(stack)
 
             if (inv.provider.emc >= remainingEmc) {
                 itemEmc.addEmc(stack, remainingEmc)
@@ -33,6 +33,17 @@ class SlotInput(private val inv: TransmutationInventory, par2: Int, par3: Int, p
         }
 
         inv.handleKnowledge(stack.copy())
+    }
+
+    override fun decrStackSize(amount: Int): ItemStack {
+        val stack = super.decrStackSize(amount)
+        //Decrease the size of the stack
+        if (stack.item is IItemEmc) {
+            //If it was an EMC storing item then check for updates,
+            // so that the right hand side shows the proper items
+            inv.checkForUpdates()
+        }
+        return stack
     }
 
     override fun getSlotStackLimit(): Int {

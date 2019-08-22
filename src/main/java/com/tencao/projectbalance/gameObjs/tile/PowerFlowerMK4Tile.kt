@@ -28,7 +28,7 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper
 class PowerFlowerMK4Tile : PowerFlowerMK1Tile(Constants.POWER_FLOWER_MK4_MAX, Constants.POWER_FLOWER_MK4_GEN) {
 
     override fun createAutomationInventory(): IItemHandler {
-        val automationInput = object : WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN) {
+        val automationInput = object : WrappedItemHandler(input, WriteMode.IN) {
             override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
                 return if (SlotPredicates.HAS_EMC.test(stack) && !isStackEqualToLock(stack))
                     super.insertItem(slot, stack, simulate)
@@ -57,7 +57,7 @@ class PowerFlowerMK4Tile : PowerFlowerMK1Tile(Constants.POWER_FLOWER_MK4_MAX, Co
                     continue
                 }
 
-                this.addEMC((EMCHelper.getEmcSellValue(stack) * stack.count).toDouble())
+                this.addEMC(EMCHelper.getEmcSellValue(stack) * stack.count)
                 input.setStackInSlot(i, ItemStack.EMPTY)
                 break
             }

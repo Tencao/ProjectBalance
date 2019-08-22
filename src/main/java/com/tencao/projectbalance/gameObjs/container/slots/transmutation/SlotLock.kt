@@ -24,10 +24,10 @@ class SlotLock(private val inv: TransmutationInventory, par2: Int, par3: Int, pa
 
         if (stack.item is IItemEmc) {
             val itemEmc = stack.item as IItemEmc
-            val remainEmc = Constants.TILE_MAX_EMC - Math.ceil(inv.provider.emc).toInt()
+            val remainEmc = Constants.TILE_MAX_EMC - inv.provider.emc
 
             if (itemEmc.getStoredEmc(stack) >= remainEmc) {
-                inv.addEmc(remainEmc.toDouble())
+                inv.addEmc(remainEmc)
                 itemEmc.extractEmc(stack, remainEmc.toDouble())
             } else {
                 inv.addEmc(itemEmc.getStoredEmc(stack))

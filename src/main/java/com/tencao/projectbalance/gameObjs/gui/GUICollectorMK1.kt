@@ -36,7 +36,7 @@ class GUICollectorMK1(invPlayer: InventoryPlayer, private val tile: CollectorMK1
     }
 
     override fun drawGuiContainerForegroundLayer(var1: Int, var2: Int) {
-        this.fontRenderer.drawString(Integer.toString(container.emc), 60, 32, 4210752)
+        this.fontRenderer.drawString(container.emc.toString(), 60, 32, 4210752)
 
         val kleinCharge = container.kleinEmc.toDouble()
 

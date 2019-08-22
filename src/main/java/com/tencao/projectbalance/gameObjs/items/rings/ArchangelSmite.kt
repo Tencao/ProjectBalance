@@ -37,9 +37,9 @@ class ArchangelSmite: ArchangelSmite() {
         if (!world.isRemote && ProjectEConfig.pedestalCooldown.archangelPedCooldown != -1) {
             val te = world.getTileEntity(pos) as? DMPedestalTile ?: return
 
-            if (!world.getEntitiesWithinAABB(EntityLiving::class.java, te.getEffectBounds()).isEmpty()) {
+            if (world.getEntitiesWithinAABB(EntityLiving::class.java, te.getEffectBounds()).isNotEmpty()) {
                 for (i in 0..2) {
-                    if (te.hasRequiredEMC(EMCHelper.getEmcValue(Items.ARROW).toDouble(), false)) {
+                    if (te.hasRequiredEMC(EMCHelper.getEmcValue(Items.ARROW), false)) {
                         val arrow = EntityHomingArrow(world, FakePlayerFactory.get(world as WorldServer, PECore.FAKEPLAYER_GAMEPROFILE), 2.0f)
                         arrow.posX = te.centeredX
                         arrow.posY = te.centeredY + 2

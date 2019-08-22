@@ -68,12 +68,12 @@ object Graph: Iterable<MutableMap.MutableEntry<Component, Node>> {
 
     private fun generateValues() = graph.values.forEach { it.value; it.complexity }
 
-    fun printValues() = ProjectBCore.LOGGER.debug("Printing graph of size ${graph.size} :\n\t${graph.map { "${it.key} = ${it.value.value} (${it.value.complexity})" }.joinToString("\n\t")}")
+    private fun printValues() = ProjectBCore.LOGGER.debug("Printing graph of size ${graph.size} :\n\t${graph.map { "${it.key} = ${it.value.value} (${it.value.complexity})" }.joinToString("\n\t")}")
 
     @Suppress("UNCHECKED_CAST")
     private fun populate() {
         ForgeRegistries.RECIPES.valuesCollection.forEach loop@ {
-            if (!(it is ShapedRecipes || it is ShapelessRecipes || it is ShapedOreRecipe || it is ShapelessOreRecipe) || it.recipeOutput.isEmpty) return@loop
+            if (!(it is ShapedRecipes || it is ShapelessRecipes || it is ShapedOreRecipe || it is ShapelessOreRecipe) || it.recipeOutput.isEmpty || CraftingIngredients(it).getComponents().isEmpty()) return@loop
             val output: Component = ItemComponent(it.recipeOutput).makeOutput()
             val recipe =
                     if (it.recipeOutput.item is UniversalBucket || it.recipeOutput.item is ItemBucket)

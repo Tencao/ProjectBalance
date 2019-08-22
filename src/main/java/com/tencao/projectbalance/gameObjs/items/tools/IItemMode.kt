@@ -37,34 +37,34 @@ interface IItemMode: IModeChanger, IItemCharge {
         return numCharges
     }
 
-    fun addEmcToStack(stack: ItemStack, amount: Double) {
+    fun addEmcToStack(stack: ItemStack, amount: Long) {
         setEmc(stack, getEmc(stack) + amount)
     }
 
-    fun getEmc(stack: ItemStack): Double {
+    fun getEmc(stack: ItemStack): Long {
         if (stack.tagCompound == null) {
             stack.tagCompound = NBTTagCompound()
         }
 
-        return stack.tagCompound!!.getDouble("StoredEMC")
+        return stack.tagCompound!!.getLong("StoredEMC")
     }
 
-    fun removeEmc(stack: ItemStack, amount: Double) {
+    fun removeEmc(stack: ItemStack, amount: Long) {
         var result = getEmc(stack) - amount
 
         if (result < 0) {
-            result = 0.0
+            result = 0L
         }
 
         setEmc(stack, result)
     }
 
-    fun setEmc(stack: ItemStack, amount: Double) {
+    fun setEmc(stack: ItemStack, amount: Long) {
         if (stack.tagCompound == null) {
             stack.tagCompound = NBTTagCompound()
         }
 
-        stack.tagCompound!!.setDouble("StoredEMC", amount)
+        stack.tagCompound!!.setLong("StoredEMC", amount)
     }
 
     override fun changeCharge(player: EntityPlayer, stack: ItemStack, hand: EnumHand?): Boolean {
@@ -110,7 +110,7 @@ interface IItemMode: IModeChanger, IItemCharge {
         return modes[stack.tagCompound!!.getByte("Mode").toInt()]
     }
 
-    fun consumeFuel(player: EntityPlayer, stack: ItemStack, amount: Double, shouldRemove: Boolean): Boolean {
+    fun consumeFuel(player: EntityPlayer, stack: ItemStack, amount: Long, shouldRemove: Boolean): Boolean {
         if (amount <= 0) {
             return true
         }
@@ -120,7 +120,7 @@ interface IItemMode: IModeChanger, IItemCharge {
         if (current < amount) {
             val consume = EMCHelper.consumePlayerFuel(player, amount - current)
 
-            if (consume == -1.0) {
+            if (consume == -1L) {
                 return false
             }
 

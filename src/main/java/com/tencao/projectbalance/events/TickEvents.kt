@@ -29,7 +29,7 @@ object TickEvents {
     @SubscribeEvent
     fun playerTick(event: TickEvent.PlayerTickEvent) {
         if (event.phase == TickEvent.Phase.END) {
-            event.player.getCapability<InternalCooldowns>(InternalCooldowns.CAPABILITY, null)!!.tick()
+            event.player.getCapability(InternalCooldowns.CAPABILITY, null)!!.tick()
         }
     }
 

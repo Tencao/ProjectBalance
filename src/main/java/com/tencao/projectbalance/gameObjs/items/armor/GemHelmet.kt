@@ -44,6 +44,7 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 import thaumcraft.api.items.IGoggles
 import thaumcraft.api.items.IRevealer
+import kotlin.math.floor
 
 @Optional.InterfaceList(value = [(Optional.Interface(iface = "thaumcraft.api.items.IRevealer", modid = "Thaumcraft")), (Optional.Interface(iface = "thaumcraft.api.items.IGoggles", modid = "Thaumcraft"))])
 class GemHelmet : GemArmorBase(EntityEquipmentSlot.HEAD), IGoggles, IRevealer {
@@ -64,9 +65,9 @@ class GemHelmet : GemArmorBase(EntityEquipmentSlot.HEAD), IGoggles, IRevealer {
 
     override fun onArmorTick(world: World, player: EntityPlayer, stack: ItemStack) {
         if (world.isRemote) {
-            val x = Math.floor(player.posX).toInt()
+            val x = floor(player.posX).toInt()
             val y = (player.posY - player.yOffset).toInt()
-            val z = Math.floor(player.posZ).toInt()
+            val z = floor(player.posZ).toInt()
             val pos = BlockPos(x, y, z)
             val b = world.getBlockState(pos.down()).block
 
@@ -81,7 +82,7 @@ class GemHelmet : GemArmorBase(EntityEquipmentSlot.HEAD), IGoggles, IRevealer {
             player.getCapability(InternalTimers.CAPABILITY, null)!!.activateHeal()
 
             if (player.health < player.maxHealth && player.getCapability(InternalTimers.CAPABILITY, null)!!.canHeal() && getStoredEmc(stack) > ProjectBConfig.tweaks.BMHealAbility) {
-                removeEmc(stack, ProjectBConfig.tweaks.BMHealAbility.toDouble())
+                removeEmc(stack, ProjectBConfig.tweaks.BMHealAbility.toLong())
                 player.heal(2.0f)
             }
 
@@ -111,7 +112,7 @@ class GemHelmet : GemArmorBase(EntityEquipmentSlot.HEAD), IGoggles, IRevealer {
         if (ProjectEConfig.difficulty.offensiveAbilities && getStoredEmc(stack) >= ProjectBConfig.tweaks.BMLightningAbility) {
             val strikePos = PlayerHelper.getBlockLookingAt(player, 120.0)
             if (strikePos != null) {
-                removeEmc(stack, ProjectBConfig.tweaks.BMLightningAbility.toDouble())
+                removeEmc(stack, ProjectBConfig.tweaks.BMLightningAbility.toLong())
                 player.entityWorld.addWeatherEffect(EntityLightningBolt(player.entityWorld, strikePos.x.toDouble(), strikePos.y.toDouble(), strikePos.z.toDouble(), false))
             }
         }

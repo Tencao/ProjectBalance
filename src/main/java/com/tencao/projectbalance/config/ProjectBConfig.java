@@ -214,15 +214,15 @@ public final class ProjectBConfig {
         //Tweaks
         @Config.RangeInt(min = 0)
         @Config.Comment("The max EMC the DM armor can store.")
-        public double DMMaxEMC = 50000;
+        public int DMMaxEMC = 50000;
 
         @Config.RangeInt(min = 0)
         @Config.Comment("The max EMC the RM armor can store.")
-        public double RMMaxEMC = 100000;
+        public int RMMaxEMC = 100000;
 
         @Config.RangeInt(min = 0)
         @Config.Comment("The max EMC the Gem armor can store.")
-        public double BMMaxEMC = 150000;
+        public int BMMaxEMC = 150000;
 
         @Config.RangeInt(min = 0)
         @Config.Comment("The max EMC the Gem armor can store.")

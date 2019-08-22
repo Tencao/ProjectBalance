@@ -20,6 +20,7 @@ import moze_intel.projecte.emc.SimpleStack
 import net.minecraft.init.Items
 import net.minecraft.item.EnumDyeColor
 import net.minecraft.item.ItemStack
+import kotlin.math.min
 
 object Defaults {
 
@@ -38,7 +39,7 @@ object Defaults {
         defaultValues()
     }
 
-    fun defaultValues(){
+    private fun defaultValues(){
         values.putAll(EnumDyeColor.values().map { Pair(SimpleStack(ItemStack(Items.DYE, 1, it.dyeDamage)), 1) }.toTypedArray())
         complexities.putAll(EnumDyeColor.values().map { Pair(SimpleStack(ItemStack(Items.DYE, 1, it.dyeDamage)), 0) }.toTypedArray())
     }
@@ -55,7 +56,7 @@ object Defaults {
         var int = Int.MAX_VALUE
         stacks.forEach {
             if (values.contains(SimpleStack(it)))
-                int = Math.min(int, values[SimpleStack(it)]!!)
+                int = min(int, values[SimpleStack(it)]!!)
         }
         return if (int == Int.MAX_VALUE)
             null
@@ -66,7 +67,7 @@ object Defaults {
         var int = Int.MAX_VALUE
         stacks.forEach {
             if (complexities.contains(SimpleStack(it)))
-                int = Math.min(int, complexities[SimpleStack(it)]!!)
+                int = min(int, complexities[SimpleStack(it)]!!)
         }
         return if (int == Int.MAX_VALUE)
             null

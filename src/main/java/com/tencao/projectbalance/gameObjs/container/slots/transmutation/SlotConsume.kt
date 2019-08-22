@@ -14,10 +14,10 @@ class SlotConsume(private val inv: TransmutationInventory, par2: Int, par3: Int,
 
         val cache = stack.copy()
 
-        var toAdd = 0.0
+        var toAdd = 0L
 
         while (!inv.hasMaxedEmc() && stack.count > 0) {
-            toAdd += EMCHelper.getEmcSellValue(stack).toDouble()
+            toAdd += EMCHelper.getEmcSellValue(stack)
             stack.shrink(1)
         }
 

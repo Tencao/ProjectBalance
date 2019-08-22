@@ -66,7 +66,7 @@ class LifeStone: LifeStone() {
         if (!tag.getBoolean(ItemPE.TAG_ACTIVE)
                 && player.getInternalCooldowns().canFeed()
                 && player.getInternalCooldowns().canHeal()
-                && ItemPE.consumeFuel(player, stack, (ProjectBConfig.tweaks.BodyStoneEmc + ProjectBConfig.tweaks.SoulStoneEmc).toDouble(), true)) {
+                && ItemPE.consumeFuel(player, stack, ProjectBConfig.tweaks.BodyStoneEmc.toLong() + ProjectBConfig.tweaks.SoulStoneEmc, true)) {
             tag.setBoolean(ItemPE.TAG_ACTIVE, true)
             player.getInternalCooldowns().triggerFoodCooldown()
             player.getInternalCooldowns().triggerHealCooldown()
@@ -81,11 +81,11 @@ class LifeStone: LifeStone() {
             val players = world.getEntitiesWithinAABB(EntityPlayerMP::class.java, te.getEffectBounds())
 
             for (player in players) {
-                if (player.health < player.maxHealth && te.hasRequiredEMC(ProjectBConfig.tweaks.SoulStonePedestalCost.toDouble(), false)) {
+                if (player.health < player.maxHealth && te.hasRequiredEMC(ProjectBConfig.tweaks.SoulStonePedestalCost.toLong(), false)) {
                     world.playSound(null, player.posX, player.posY, player.posZ, PESounds.HEAL, SoundCategory.BLOCKS, 1f, 1f)
                     player.heal(1.0f) // 1/2 heart
                 }
-                if (player.foodStats.needFood() && te.hasRequiredEMC(ProjectBConfig.tweaks.BodyStonePedestalCost.toDouble(), false)) {
+                if (player.foodStats.needFood() && te.hasRequiredEMC(ProjectBConfig.tweaks.BodyStonePedestalCost.toLong(), false)) {
                     world.playSound(null, player.posX, player.posY, player.posZ, PESounds.HEAL, SoundCategory.BLOCKS, 1f, 1f)
                     player.foodStats.addStats(1, 1f) // 1/2 shank
                 }

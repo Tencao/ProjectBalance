@@ -33,9 +33,9 @@ open class DarkPick : ItemPickaxe, IItemMode {
         this.modes = modeDesc
         this.numModes = modeDesc.size.toByte()
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
-        this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
+        this.creativeTab = ObjHandler.cTab
         this.attackDamage = damage + material.attackDamage
         this.attackSpeed = -2.8F
     }

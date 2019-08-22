@@ -35,30 +35,37 @@ import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.ItemHandlerHelper
 import net.minecraftforge.items.wrapper.CombinedInvWrapper
 import net.minecraftforge.items.wrapper.RangedWrapper
+import kotlin.math.cos
+import kotlin.math.min
 
 open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
 
-    private val input = this.StackHandler(this.invSize)
-    private val auxSlots = this.StackHandler(3)
-    private val toSort = CombinedInvWrapper(RangedWrapper(auxSlots, UPGRADING_SLOT, UPGRADING_SLOT + 1), input)
-    private val automationInput = object : WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN) {
-        override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            return if (SlotPredicates.COLLECTOR_INV.test(stack))
-                super.insertItem(slot, stack, simulate)
-            else
-                stack
+    private val input by lazy { this.StackHandler(invSize) }
+    private val auxSlots by lazy { this.StackHandler(3) }
+    private val toSort by lazy { CombinedInvWrapper(RangedWrapper(auxSlots, UPGRADING_SLOT, UPGRADING_SLOT + 1), input) }
+    private val automationInput by lazy {
+        object : WrappedItemHandler(input, WriteMode.IN) {
+            override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
+                return if (SlotPredicates.COLLECTOR_INV.test(stack))
+                    super.insertItem(slot, stack, simulate)
+                else
+                    stack
+            }
         }
     }
-    private val automationAuxSlots = object : WrappedItemHandler(auxSlots, WrappedItemHandler.WriteMode.OUT) {
-        override fun extractItem(slot: Int, count: Int, simulate: Boolean): ItemStack {
-            return if (slot == UPGRADE_SLOT)
-                super.extractItem(slot, count, simulate)
-            else
-                ItemStack.EMPTY
+    private val automationAuxSlots by lazy {
+        object : WrappedItemHandler(auxSlots, WriteMode.OUT) {
+            override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
+                return if (slot == UPGRADE_SLOT)
+                    super.extractItem(slot, amount, simulate)
+                else
+                    ItemStack.EMPTY
+            }
         }
     }
 
-    private val emcGen: Float
+    private val emcGen: Double
+    private var unprocessedEMC: Double = 0.0
     private var hasChargeableItem: Boolean = false
     private var hasFuel: Boolean = false
     private var storedFuelEmc: Double = 0.toDouble()
@@ -67,10 +74,10 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
     val aux: IItemHandler
         get() = auxSlots
 
-    protected open val invSize: Int
+    open val invSize: Int
         get() = 8
 
-    private val upgraded: ItemStack
+    private val upgraded
         get() = auxSlots.getStackInSlot(UPGRADE_SLOT)
 
     private val lock: ItemStack
@@ -84,7 +91,7 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
             if (world.provider.isNether) {
                 return 0.0f
             }
-            var sunBrightness = limit(Math.cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
+            var sunBrightness = limit(cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
             if (!BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.SANDY)) {
                 sunBrightness *= 1.0f - world.getRainStrength(1.0f) * 5.0f / 16.0f
                 sunBrightness *= 1.0f - world.getThunderStrength(1.0f) * 5.0f / 16.0f
@@ -95,17 +102,17 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
             return light / 15.0f * sunBrightness
         }
 
-    val emcToNextGoal: Double
+    val emcToNextGoal: Long
         get() = if (!lock.isEmpty) {
-            (EMCHelper.getEmcValue(lock) - EMCHelper.getEmcValue(upgrading)).toDouble()
+            (EMCHelper.getEmcValue(lock) - EMCHelper.getEmcValue(upgrading))
         } else {
-            (EMCHelper.getEmcValue(FuelMapper.getFuelUpgrade(upgrading)) - EMCHelper.getEmcValue(upgrading)).toDouble()
+            (EMCHelper.getEmcValue(FuelMapper.getFuelUpgrade(upgrading)) - EMCHelper.getEmcValue(upgrading))
         }
 
-    val itemCharge: Double
+    val itemCharge: Long
         get() = if (!upgrading.isEmpty && upgrading.item is IItemEmc) {
             (upgrading.item as IItemEmc).getStoredEmc(upgrading)
-        } else -1.0
+        } else -1
 
     val itemChargeProportion: Double
         get() {
@@ -113,7 +120,7 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
 
             return if (upgrading.isEmpty || charge <= 0 || upgrading.item !is IItemEmc) {
                 -1.0
-            } else charge / (upgrading.item as IItemEmc).getMaximumEmc(upgrading)
+            } else charge.toDouble() / (upgrading.item as IItemEmc).getMaximumEmc(upgrading)
 
         }
 
@@ -143,15 +150,13 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
 
             return if (storedEmc >= reqEmc) {
                 1.0
-            } else storedEmc / reqEmc
+            } else storedEmc / reqEmc.toDouble()
 
         }
 
-    constructor() : super(Constants.COLLECTOR_MK1_MAX) {
-        emcGen = Constants.COLLECTOR_MK1_GEN
-    }
+    constructor() : this(Constants.COLLECTOR_MK1_MAX, Constants.COLLECTOR_MK1_GEN)
 
-    constructor(maxEmc: Int, emcGen: Float) : super(maxEmc) {
+    constructor(maxEmc: Long, emcGen: Double) : super(maxEmc) {
         this.emcGen = emcGen
     }
 
@@ -216,10 +221,10 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
             updateEmc(false)
         }
 
-        if (this.storedEmc == 0.0) {
+        if (this.storedEmc == 0L) {
             return
         } else if (hasChargeableItem) {
-            var toSend: Double = if (this.storedEmc < emcGen) this.storedEmc else emcGen.toDouble()
+            var toSend: Long = if (this.storedEmc < Constants.RELAY_MK1_OUTPUT) this.storedEmc else Constants.RELAY_MK1_OUTPUT
             val item = upgrading.item as IItemEmc
 
             val itemEmc = item.getStoredEmc(upgrading)
@@ -244,39 +249,42 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
                 val upgrade = upgraded
 
                 if (upgraded.isEmpty) {
-                    this.removeEMC(upgradeCost.toDouble())
+                    this.removeEMC(upgradeCost)
                     auxSlots.setStackInSlot(UPGRADE_SLOT, result)
                     upgrading.shrink(1)
                 } else if (ItemHelper.basicAreStacksEqual(result, upgrade) && upgrade.count < upgrade.maxStackSize) {
-                    this.removeEMC(upgradeCost.toDouble())
+                    this.removeEMC(upgradeCost)
                     upgraded.grow(1)
                     upgrading.shrink(1)
                 }
             }
         } else {
-            val toSend: Double = if (this.storedEmc < emcGen) this.storedEmc else emcGen.toDouble()
+            val toSend: Long = if (this.storedEmc < Constants.RELAY_MK1_OUTPUT) this.storedEmc else Constants.RELAY_MK1_OUTPUT
             this.sendToAllAcceptors(toSend)
             this.sendRelayBonus()
         }
     }
 
     override fun updateEmc(isExtra: Boolean) {
-        if (isExtra) {
-            if (!extraEMCAdded) {
-                val emc = getSunRelativeEmc(emcGen) / 20.0f
-                if (emc > 0f)
-                    this.addEMC((emc / 2).toDouble())
-                extraEMCAdded = true
+        val emcToAdd = getSunRelativeEmc(emcGen) / 20.0f
+        extraEMCAdded = if (isExtra) {
+            if (!extraEMCAdded && emcToAdd > 0.0) {
+                emcToAdd / 2
+                true
             }
+            else return
         } else {
-            extraEMCAdded = false
-            val emc = getSunRelativeEmc(emcGen) / 20.0f
-            if (emc > 0f)
-                this.addEMC(emc.toDouble())
+            false
+        }
+        unprocessedEMC += emcToAdd
+        if (unprocessedEMC > 1.0){
+            val emc = unprocessedEMC.toLong()
+            this.addEMC(emc)
+            unprocessedEMC -= emc
         }
     }
 
-    private fun getSunRelativeEmc(emc: Float): Float {
+    private fun getSunRelativeEmc(emc: Double): Double {
         return emc * sunLevel
     }
 
@@ -308,8 +316,8 @@ open class CollectorMK1Tile : TileEmc, IEmcProvider, IEmcGen {
         }
     }
 
-    override fun provideEMC(side: EnumFacing, toExtract: Double): Double {
-        val toRemove = Math.min(currentEMC, toExtract)
+    override fun provideEMC(side: EnumFacing, toExtract: Long): Long {
+        val toRemove = min(currentEMC, toExtract)
         removeEMC(toRemove)
         return toRemove
     }

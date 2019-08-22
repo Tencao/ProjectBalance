@@ -35,6 +35,7 @@ import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.ItemHandlerHelper
 import net.minecraftforge.items.ItemStackHandler
 import java.util.*
+import kotlin.math.min
 
 open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
     val input = this.createInput()
@@ -62,7 +63,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
     }
 
     protected open fun createAutomationInventory(): IItemHandler {
-        return object : WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN_OUT) {
+        return object : WrappedItemHandler(input, WriteMode.IN_OUT) {
             override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
                 return if (SlotPredicates.HAS_EMC.test(stack) && !isStackEqualToLock(stack))
                     super.insertItem(slot, stack, simulate)
@@ -99,7 +100,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
 
         checkLockAndUpdate()
 
-        displayEmc = this.storedEmc.toLong()
+        displayEmc = this.storedEmc
 
         if (!lock.getStackInSlot(0).isEmpty && requiredEmc != 0L) {
             condense()
@@ -137,7 +138,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
     }
 
     protected open fun condense() {
-        if (this.storedEmc == 0.0 || this.storedEmc / 2 < requiredEmc) {
+        if (this.storedEmc == 0L || this.storedEmc / 2 < requiredEmc) {
             for (i in 0 until input.slots) {
                 val stack = input.getStackInSlot(i)
 
@@ -146,7 +147,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
                 }
 
                 input.extractItem(i, 1, false)
-                this.addEMC(EMCHelper.getEmcSellValue(stack).toDouble())
+                this.addEMC(EMCHelper.getEmcSellValue(stack))
                 break
             }
         }
@@ -158,7 +159,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
             if (requiredTime <= 0) {
                 val time = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
                 if (time <= 100) {
-                    this.removeEMC(requiredEmc.toDouble())
+                    this.removeEMC(requiredEmc)
                     pushStack()
                 } else {
                     requiredTime = time
@@ -170,17 +171,15 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
                 else {
                     var counter = 0
                     for (tile in tomeProviders)
-                        if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toDouble(), false))
+                        if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toLong(), false))
                             counter++
                     if (counter > 0)
-                        Math.min(
-                                (requiredTime * (5.0f / 100.0f) / 20).toInt(),
-                                ((counter * 2)) + 1)
+                        min((requiredTime * (5.0f / 100.0f) / 20).toInt(), ((counter * 2)) + 1)
                     else
                         1
                 }
                 if (timePassed >= requiredTime) {
-                    this.removeEMC(requiredEmc.toDouble())
+                    this.removeEMC(requiredEmc)
                     pushStack()
                     timePassed = 0
 
@@ -198,7 +197,7 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
         tomeProviders.remove(tile)
     }
 
-    protected fun pushStack() {
+    private fun pushStack() {
         val lockCopy = lock.getStackInSlot(0).copy()
 
         if (lockCopy.hasTagCompound() && !NBTWhitelist.shouldDupeWithNBT(lockCopy)) {
@@ -292,13 +291,13 @@ open class CondenserTile : TileEmc(), IEmcAcceptor, ICraftingGen {
             super.receiveClientEvent(number, arg)
     }
 
-    override fun acceptEMC(side: EnumFacing, toAccept: Double): Double {
+    override fun acceptEMC(side: EnumFacing, toAccept: Long): Long {
         return if (isAcceptingEmc) {
-            val toAdd = Math.min(maximumEMC - currentEMC, toAccept)
+            val toAdd = min(maximumEMC - currentEMC, toAccept)
             addEMC(toAdd)
             toAdd
         } else {
-            0.0
+            0
         }
     }
 }

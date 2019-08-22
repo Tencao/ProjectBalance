@@ -29,6 +29,7 @@ import net.minecraft.entity.player.InventoryPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
+import kotlin.math.min
 
 class GUICondenser(invPlayer: InventoryPlayer, tile: CondenserTile) : GuiContainer(CondenserContainer(invPlayer, tile)), ICraftingGUI {
     private val container: CondenserContainer = inventorySlots as CondenserContainer
@@ -62,9 +63,7 @@ class GUICondenser(invPlayer: InventoryPlayer, tile: CondenserTile) : GuiContain
             this.fontRenderer.drawString("0", 140, 10, 4210752)
         } else if ((container.displayEmc >= container.requiredEmc || container.timePassed > 0) && container.requiredTime > 100) {
             val totalSeconds = if (container.tomes > 0){
-                val factor = Math.min(
-                        ((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(),
-                        container.tomes * 2) + 1
+                val factor = min(((container.requiredTime * (5.0f / 100.0f)) / 20).toInt(), container.tomes * 2) + 1
                 (container.requiredTime - container.timePassed) / (factor * 20)
             } else (container.requiredTime - container.timePassed) / 20
             val totalMinutes = (totalSeconds % 3600) / 60

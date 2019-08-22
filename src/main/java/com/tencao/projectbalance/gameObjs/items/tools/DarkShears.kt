@@ -23,7 +23,7 @@ open class DarkShears : ItemShears, IItemMode {
     constructor(name: String, numCharges: Int): super(){
         this.numCharges = numCharges
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
         this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
     }

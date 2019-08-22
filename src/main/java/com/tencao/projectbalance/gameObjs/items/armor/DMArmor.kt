@@ -29,10 +29,10 @@ import net.minecraftforge.common.ISpecialArmor
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
 
-class DMArmor(armorPiece: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorPiece, ProjectBConfig.tweaks.DMMaxEMC), ISpecialArmor {
+class DMArmor(armorPiece: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorPiece, ProjectBConfig.tweaks.DMMaxEMC.toLong()), ISpecialArmor {
     init {
         this.creativeTab = ObjHandler.cTab
-        this.unlocalizedName = "pe_dm_armor_" + armorPiece.index
+        this.translationKey = "pe_dm_armor_" + armorPiece.index
         this.maxDamage = 0
     }
 
@@ -61,21 +61,21 @@ class DMArmor(armorPiece: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND
     }
 
 
-    private fun getDamageCost(damage: Double): Double {
-        return damage * ProjectBConfig.tweaks.DMDamagePer
+    private fun getDamageCost(damage: Double): Long {
+        return (damage * ProjectBConfig.tweaks.DMDamagePer).toLong()
     }
 
-    private fun getUnshieldedDamage(stack: ItemStack, damage: Double): Double {
+    private fun getUnshieldedDamage(stack: ItemStack, damage: Double): Long {
         val cost = getDamageCost(damage)
         return if (cost >= getStoredEmc(stack)) {
             removeEmc(stack, cost)
             (cost - getStoredEmc(stack)) / ProjectBConfig.tweaks.DMDamagePer
         } else
-            0.0
+            0
     }
 
     @SideOnly(Side.CLIENT)
     override fun hasEffect(stack: ItemStack): Boolean {
-        return getUnshieldedDamage(stack, 1.0) == 0.0
+        return getUnshieldedDamage(stack, 1.0) == 0L
     }
 }

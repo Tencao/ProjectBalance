@@ -24,7 +24,7 @@ open class DarkHoe : ItemHoe, IItemMode {
     constructor(name: String, material: ToolMaterial, numCharges: Int): super(material){
         this.numCharges = numCharges
         this.setNoRepair()
-        this.unlocalizedName = "pe_$name"
+        this.translationKey = "pe_$name"
         this.maxDamage = 0
         this.creativeTab = moze_intel.projecte.gameObjs.ObjHandler.cTab
     }

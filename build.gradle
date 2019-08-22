@@ -30,7 +30,7 @@ archivesBaseName = "ProjectBalance"
 minecraft {
     version = "${minecraft_version}-${forge_version}"
     runDir = "run"
-    mappings = 'snapshot_20180523'
+    mappings = 'stable_39'
 	
     replace "@VERSION@", project.version
     replaceIn "ProjectBCore.kt"

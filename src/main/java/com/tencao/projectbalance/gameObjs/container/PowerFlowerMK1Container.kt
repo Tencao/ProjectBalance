@@ -85,7 +85,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
         PacketHandler.sendProgressBarUpdateLong(listener, this, 1, tile.requiredEmc)
         PacketHandler.sendProgressBarUpdateLong(listener, this, 2, tile.displayEmc)
         PacketHandler.sendProgressBarUpdateLong(listener, this, 3, tile.requiredEmc)
-        PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt())
+        PacketHandler.sendProgressBarUpdateInt(listener, this, 0, tile.tomeProviders.stream().filter { it.hasRequiredEMC(20, true) }.count().toInt())
         PacketHandler.sendProgressBarUpdateInt(listener, this, 1, (tile.sunLevel * 16f).toInt())
     }
 
@@ -125,7 +125,7 @@ open class PowerFlowerMK1Container(invPlayer: InventoryPlayer, internal val tile
         }
 
 
-        val count = tile.tomeProviders.stream().filter { it -> it.hasRequiredEMC(20.0, true) }.count().toInt()
+        val count = tile.tomeProviders.stream().filter { it.hasRequiredEMC(20, true) }.count().toInt()
         if (tomes != count) {
             for (listener in listeners) {
                 PacketHandler.sendProgressBarUpdateInt(listener, this, 0, count)

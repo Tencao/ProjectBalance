@@ -16,13 +16,14 @@
 
 package com.tencao.projectbalance.mapper
 
-import java.lang.IllegalStateException
+import kotlin.math.abs
+import kotlin.math.max
 
 open class Recipe(val output: Component, val input: List<Component>) {
 
     open val _value: Int by lazy {
         try {
-            Math.abs(input.map { it.value * it.amount }.sum()) / Math.max(output.amount, 1)
+            abs(input.map { it.value * it.amount }.sum()) / max(output.amount, 1)
         } catch (e: IllegalStateException) {
             Int.MAX_VALUE
         }

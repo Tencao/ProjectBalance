@@ -20,12 +20,13 @@ import com.google.common.collect.Lists
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
 import java.util.*
+import kotlin.math.min
 
 class CraftingIngredients(recipe: IRecipe) {
 
-    val variableInputs: ArrayList<Iterable<ItemStack>> = Lists.newArrayList<Iterable<ItemStack>>()
-    val fixedInputs: ArrayList<ItemStack> = Lists.newArrayList<ItemStack>()
-    val allInputs: ArrayList<ItemStack> = Lists.newArrayList<ItemStack>()
+    private val variableInputs: ArrayList<Iterable<ItemStack>> = Lists.newArrayList()
+    val fixedInputs: ArrayList<ItemStack> = Lists.newArrayList()
+    val allInputs: ArrayList<ItemStack> = Lists.newArrayList()
 
     init {
         for (recipeItem in recipe.ingredients) {
@@ -48,8 +49,8 @@ class CraftingIngredients(recipe: IRecipe) {
 
     fun getCount(): Int{
         var count = Int.MAX_VALUE
-        fixedInputs.asSequence().forEach { count = Math.min(count, it.count) }
-        variableInputs.asSequence().forEach { it.asSequence().forEach { count = Math.min(count, it.count) }}
+        fixedInputs.asSequence().forEach { count = min(count, it.count) }
+        variableInputs.asSequence().forEach { it -> it.asSequence().forEach { count = min(count, it.count) }}
         if (count == Int.MAX_VALUE)
             count = 1
         return count
@@ -58,7 +59,7 @@ class CraftingIngredients(recipe: IRecipe) {
     fun getComponents(): List<Component>{
         val components = mutableListOf<Component>()
         fixedInputs.forEach { components.add(ItemComponent(it)) }
-        variableInputs.forEach {
+        variableInputs.forEach { it ->
             var stack: Component = ItemComponent(it.first())
             it.forEach {
                 val toTest: Component = ItemComponent(it)

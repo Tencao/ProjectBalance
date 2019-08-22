@@ -33,10 +33,10 @@ import thaumcraft.api.items.IGoggles
 import thaumcraft.api.items.IRevealer
 
 @Optional.InterfaceList(value = [(Optional.Interface(iface = "thaumcraft.api.items.IRevealer", modid = "Thaumcraft")), (Optional.Interface(iface = "thaumcraft.api.items.IGoggles", modid = "Thaumcraft"))])
-class RMArmor(armorType: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorType, ProjectBConfig.tweaks.RMMaxEMC), ISpecialArmor, IRevealer, IGoggles {
+class RMArmor(armorType: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND, 0, armorType, ProjectBConfig.tweaks.RMMaxEMC.toLong()), ISpecialArmor, IRevealer, IGoggles {
     init {
         this.creativeTab = ObjHandler.cTab
-        this.unlocalizedName = "pe_rm_armor_" + armorType.index
+        this.translationKey = "pe_rm_armor_" + armorType.index
         this.maxDamage = 0
     }
 
@@ -81,7 +81,7 @@ class RMArmor(armorType: EntityEquipmentSlot) : ArmorBase(ArmorMaterial.DIAMOND,
     private fun getUnshieldedDamage(stack: ItemStack, damage: Double): Double {
         val cost = getDamageCost(damage)
         return if (cost >= getStoredEmc(stack)) {
-            removeEmc(stack, cost)
+            removeEmc(stack, cost.toLong())
             (cost - getStoredEmc(stack)) / ProjectBConfig.tweaks.RMDamagePer
         } else
             0.0

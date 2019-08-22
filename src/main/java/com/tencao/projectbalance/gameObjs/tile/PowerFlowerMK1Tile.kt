@@ -37,13 +37,15 @@ import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.ItemHandlerHelper
 import net.minecraftforge.items.ItemStackHandler
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.min
 
-open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcGen: Float) : TileEmc(maxEmc), IEmcGen, ICraftingGen {
+open class PowerFlowerMK1Tile internal constructor(maxEmc: Long, private val emcGen: Double) : TileEmc(maxEmc), IEmcGen, ICraftingGen {
 
-    val input = this.createInput()
-    val output = this.createOutput()
-    private val automationInventory = this.createAutomationInventory()
-    val lock: ItemStackHandler = this.StackHandler(1)
+    val input by lazy { this.createInput() }
+    val output by lazy { this.createOutput() }
+    private val automationInventory by lazy { this.createAutomationInventory() }
+    val lock: ItemStackHandler by lazy { this.StackHandler(1) }
     private var ticksSinceSync: Int = 0
     var displayEmc: Long = 0
     var lidAngle: Float = 0.toFloat()
@@ -51,6 +53,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     var numPlayersUsing: Int = 0
     var requiredEmc: Long = 0
     private var extraEMCAdded: Boolean = false
+    private var unprocessedEMC: Double = 0.0
     var requiredTime: Long = 0
     var timePassed: Long = 0
     var tomeProviders = LinkedHashSet<DMPedestalTile>()
@@ -60,7 +63,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
             if (world.provider.isNether) {
                 return 0.0f
             }
-            var sunBrightness = limit(Math.cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
+            var sunBrightness = limit(cos(world.getCelestialAngleRadians(1.0f).toDouble()).toFloat() * 2.0f + 0.2f, 0.0f, 1.0f)
             if (!BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.SANDY)) {
                 sunBrightness *= 1.0f - world.getRainStrength(1.0f) * 5.0f / 16.0f
                 sunBrightness *= 1.0f - world.getThunderStrength(1.0f) * 5.0f / 16.0f
@@ -81,7 +84,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     }
 
     protected open fun createAutomationInventory(): IItemHandler {
-        return object : WrappedItemHandler(input, WrappedItemHandler.WriteMode.IN_OUT) {
+        return object : WrappedItemHandler(input, WriteMode.IN_OUT) {
             override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
                 return if (SlotPredicates.HAS_EMC.test(stack) && !isStackEqualToLock(stack))
                     super.insertItem(slot, stack, simulate)
@@ -118,7 +121,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
 
         checkLockAndUpdate()
 
-        displayEmc = this.storedEmc.toLong()
+        displayEmc = this.storedEmc
 
         if (!lock.getStackInSlot(0).isEmpty && requiredEmc != 0L) {
             condense()
@@ -128,22 +131,25 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     }
 
     override fun updateEmc(isExtra: Boolean) {
-        if (isExtra) {
-            if (!extraEMCAdded) {
-                val emc = getSunRelativeEmc(emcGen) / 20.0f
-                if (emc > 0f)
-                    this.addEMC((emc / 2).toDouble())
-                extraEMCAdded = true
+        val emcToAdd = getSunRelativeEmc(emcGen) / 20.0f
+        extraEMCAdded = if (isExtra) {
+            if (!extraEMCAdded && emcToAdd > 0.0) {
+                emcToAdd / 2
+                true
             }
+            else return
         } else {
-            extraEMCAdded = false
-            val emc = getSunRelativeEmc(emcGen) / 20.0f
-            if (emc > 0f)
-                this.addEMC(emc.toDouble())
+            false
+        }
+        unprocessedEMC += emcToAdd
+        if (unprocessedEMC > 1.0){
+            val emc = unprocessedEMC.toLong()
+            this.addEMC(emc)
+            unprocessedEMC -= emc
         }
     }
 
-    private fun getSunRelativeEmc(emc: Float): Float {
+    private fun getSunRelativeEmc(emc: Double): Double {
         return emc * sunLevel
     }
 
@@ -172,7 +178,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
     }
 
     protected open fun condense() {
-        if (this.storedEmc == 0.0 || this.storedEmc / 2 < requiredEmc) {
+        if (this.storedEmc == 0L || this.storedEmc / 2 < requiredEmc) {
             for (i in 0 until input.slots) {
                 val stack = input.getStackInSlot(i)
 
@@ -181,7 +187,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
                 }
 
                 input.extractItem(i, 1, false)
-                this.addEMC(EMCHelper.getEmcSellValue(stack).toDouble())
+                this.addEMC(EMCHelper.getEmcSellValue(stack))
                 break
             }
         }
@@ -193,7 +199,7 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
             if (requiredTime <= 0) {
                 val time = ComplexHelper.getCraftTime(lock.getStackInSlot(0))
                 if (time <= 100) {
-                    this.removeEMC(requiredEmc.toDouble())
+                    this.removeEMC(requiredEmc)
                     pushStack()
                 } else {
                     requiredTime = time
@@ -205,17 +211,15 @@ open class PowerFlowerMK1Tile internal constructor(maxEmc: Int, private val emcG
                 else {
                     var counter = 0
                     for (tile in tomeProviders)
-                        if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toDouble(), false))
+                        if (tile.hasRequiredEMC(ProjectBConfig.tweaks.TomeCost.toLong(), false))
                             counter++
                     if (counter > 0)
-                        Math.min(
-                                (requiredTime * (5.0f / 100.0f) / 20).toInt(),
-                                ((counter * 2)) + 1)
+                        min((requiredTime * (5.0f / 100.0f) / 20).toInt(), ((counter * 2)) + 1)
                     else
                         1
                 }
                 if (timePassed >= requiredTime) {
-                    this.removeEMC(requiredEmc.toDouble())
+                    this.removeEMC(requiredEmc)
                     pushStack()
                     timePassed = 0
 
